@@ -3,9 +3,9 @@ from datasets import load_dataset
 
 class MainDataset:
 
-    def __init__(self, name, prompt):
+    def __init__(self, name, prompt, cache_dir):
         super().__init__()
-        self.dataset = load_dataset(name)
+        self.dataset = load_dataset(name, cache_dir=cache_dir)
         self.dataset_train = self.dataset['train']
         self.dataset_test = self.dataset['test']
         self.dataset_val = self.dataset['validation']
@@ -29,14 +29,14 @@ class MainDataset:
 
 
 class BCBDataset(MainDataset):
-    def __init__(self, name, prompt):
-        super().__init__(name, prompt)
+    def __init__(self, name, prompt, cache_dir):
+        super().__init__(name, prompt, cache_dir)
         self.dataset_test = self.dataset['test']
 
 
 class OJCloneDataset(MainDataset):
-    def __init__(self, name, prompt):
-        super().__init__(name, prompt)
+    def __init__(self, name, prompt, cache_dir):
+        super().__init__(name, prompt, cache_dir)
         self.dataset_test = self.dataset['test']
 
 
@@ -45,8 +45,8 @@ __REGISTERED_DATASETS = {"Reid996/big_clone_bench": BCBDataset,
 
 
 def build_dataset(cfg, prompt):
-    dataset = __REGISTERED_DATASETS[cfg.DATA.NAME](cfg.DATA.NAME, prompt)
-
+    cache_dir = cfg.TASK.CACHE_DIR
+    dataset = __REGISTERED_DATASETS[cfg.DATA.NAME](cfg.DATA.NAME, prompt, cache_dir)
     if cfg.TASK.NAME == "prompt_engineering":
         dataset.build_prompt()
     elif cfg.TASK.NAME == "fine_tuning":

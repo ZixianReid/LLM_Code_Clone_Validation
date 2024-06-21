@@ -2,7 +2,7 @@ MODEL:
   NAME: "deepseek-ai/deepseek-coder-1.3b-instruct"
 
 PROMPT:
-  NAME: 'few_shot'
+  NAME: 'one_shot'
 
 DATA:
-  NAME: 'Reid996/OJClone_code_clone_unbalanced'
+  NAME: 'Reid996/big_clone_bench'

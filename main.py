@@ -5,10 +5,10 @@ from data import build_dataset, build_prompt
 from engine import build_prompt_engineering
 from utils.utils import print_info
 
+
 def run(cfg):
     # build prompt
     prompt = build_prompt(cfg)
-
     # build dataset
     dataset = build_dataset(cfg, prompt)
 
@@ -25,8 +25,7 @@ def run(cfg):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_file', type=str,
-                        default='/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/config/deepseek_coder_1'
-                                '.3b_zero_shot.yaml')
+                        default='/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/config/codellama_7b_one_shot_ojclone.yaml')
     parser.add_argument(
         "opts",
         help="Modify config options using the command-line",

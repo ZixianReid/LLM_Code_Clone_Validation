@@ -28,128 +28,78 @@ example_few_bcb = Template(
     """
 ## Example
 Code snippet 1:
-    public static String getKeyWithRightLength(final String key, int keyLength) {
-        if (keyLength > 0) {
-            if (key.length() == keyLength) {
-                return key;
-            } else {
-                MessageDigest md = null;
-                try {
-                    md = MessageDigest.getInstance("SHA-1");
-                } catch (NoSuchAlgorithmException e) {
-                    return "";
-                }
-                md.update(key.getBytes());
-                byte[] hash = md.digest();
-                if (keyLength > 20) {
-                    byte nhash[] = new byte[keyLength];
-                    for (int i = 0; i < keyLength; i++) {
-                        nhash[i] = hash[i % 20];
-                    }
-                    hash = nhash;
-                }
-                return new String(hash).substring(0, keyLength);
-            }
-        } else {
-            return key;
-        }
+    private static String encode(final String input) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.reset();
+        md.update(input.getBytes("UTF-8"));
+        return toHexString(md.digest());
     }
 Code snippet 2:
-        public static String digest(String password) {
-            try {
-                byte[] digest;
-                synchronized (__md5Lock) {
-                    if (__md == null) {
-                        try {
-                            __md = MessageDigest.getInstance("MD5");
-                        } catch (Exception e) {
-                            Log.warn(e);
-                            return null;
-                        }
-                    }
-                    __md.reset();
-                    __md.update(password.getBytes(StringUtil.__ISO_8859_1));
-                    digest = __md.digest();
-                }
-                return __TYPE + TypeUtil.toString(digest, 16);
-            } catch (Exception e) {
-                Log.warn(e);
-                return null;
-            }
-        }
+    public static byte[] encrypt(String x) throws Exception {
+        java.security.MessageDigest d = null;
+        d = java.security.MessageDigest.getInstance("SHA-1");
+        d.reset();
+        d.update(x.getBytes());
+        return d.digest();
+    }
 Flag: $flag_true
 --
 ## Example
 Code snippet 1:
-    public void saveProjectFile(File aFile) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
-        File destDir = new File(theProjectsDirectory, sdf.format(Calendar.getInstance().getTime()));
-        if (destDir.mkdirs()) {
-            File outFile = new File(destDir, "project.xml");
-            try {
-                FileChannel sourceChannel = new FileInputStream(aFile).getChannel();
-                FileChannel destinationChannel = new FileOutputStream(outFile).getChannel();
-                sourceChannel.transferTo(0, sourceChannel.size(), destinationChannel);
-                sourceChannel.close();
-                destinationChannel.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                aFile.delete();
-            }
-        }
+    HttpRepository(Path path) throws IOException {
+        super(path);
+        this.url = new URL(path.toURLString());
+        HttpURLConnection.setFollowRedirects(true);
+        this.connection = (HttpURLConnection) url.openConnection();
+        this.ns = Names.getNamespace(path);
     }
 Code snippet 2:     
-    public Configuration(URL url) {
-        InputStream in = null;
-        try {
-            load(in = url.openStream());
-        } catch (Exception e) {
-            throw new RuntimeException("Could not load configuration from " + url, e);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignore) {
-                }
-            }
-        }
+    public static byte[] encrypt(String x) throws Exception {
+        java.security.MessageDigest d = null;
+        d = java.security.MessageDigest.getInstance("SHA-1");
+        d.reset();
+        d.update(x.getBytes());
+        return d.digest();
     }
 Flag: $flag_false
 --
 ## Example
 Code snippet 1: 
-    public static void copy(File source, File dest) throws java.io.IOException {
-        FileChannel in = null, out = null;
-        try {
-            in = new FileInputStream(source).getChannel();
-            out = new FileOutputStream(dest).getChannel();
-            long size = in.size();
-            MappedByteBuffer buf = in.map(FileChannel.MapMode.READ_ONLY, 0, size);
-            out.write(buf);
-        } finally {
-            if (in != null) in.close();
-            if (out != null) out.close();
-        }
+    public static byte[] createPasswordDigest(String password, byte[] salt) throws Exception {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(salt);
+        md.update(password.getBytes("UTF8"));
+        byte[] digest = md.digest();
+        return digest;
     }
 Code snippet 2:
-    public static void copyFile(File in, File out) throws IOException {
-        try {
-            FileReader inf = new FileReader(in);
-            OutputStreamWriter outf = new OutputStreamWriter(new FileOutputStream(out), "UTF-8");
-            int OJClone;
-            while ((OJClone = inf.read()) != -1) outf.write(OJClone);
-            inf.close();
-            outf.close();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static byte[] encrypt(String x) throws Exception {
+        java.security.MessageDigest d = null;
+        d = java.security.MessageDigest.getInstance("SHA-1");
+        d.reset();
+        d.update(x.getBytes());
+        return d.digest();
     }
 Flag: $flag_true
+--
+## Example
+Code snippet 1:
+    public static byte[] encrypt(String x) throws Exception {
+        java.security.MessageDigest d = null;
+        d = java.security.MessageDigest.getInstance("SHA-1");
+        d.reset();
+        d.update(x.getBytes());
+        return d.digest();
+    }
+Code snippet 2:
+    private static void copyFile(File src, File dst) throws IOException {
+        FileChannel in = new FileInputStream(src).getChannel();
+        FileChannel out = new FileOutputStream(dst).getChannel();
+        in.transferTo(0, in.size(), out);
+        in.close();
+        out.close();
+    }
+Flag: $flag_false
 --
 """
 )
@@ -157,198 +107,215 @@ Flag: $flag_true
 example_one_bcb = Template(
     """
 ## Example
-Code snippet 1: 
-    public static void copy(File source, File dest) throws java.io.IOException {
-        FileChannel in = null, out = null;
-        try {
-            in = new FileInputStream(source).getChannel();
-            out = new FileOutputStream(dest).getChannel();
-            long size = in.size();
-            MappedByteBuffer buf = in.map(FileChannel.MapMode.READ_ONLY, 0, size);
-            out.write(buf);
-        } finally {
-            if (in != null) in.close();
-            if (out != null) out.close();
-        }
+Code snippet 1:
+    public static byte[] encrypt(String x) throws Exception {
+        java.security.MessageDigest d = null;
+        d = java.security.MessageDigest.getInstance("SHA-1");
+        d.reset();
+        d.update(x.getBytes());
+        return d.digest();
     }
 Code snippet 2:
-    public static void copyFile(File in, File out) throws IOException {
-        try {
-            FileReader inf = new FileReader(in);
-            OutputStreamWriter outf = new OutputStreamWriter(new FileOutputStream(out), "UTF-8");
-            int OJClone;
-            while ((OJClone = inf.read()) != -1) outf.write(OJClone);
-            inf.close();
-            outf.close();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private static void copyFile(File src, File dst) throws IOException {
+        FileChannel in = new FileInputStream(src).getChannel();
+        FileChannel out = new FileOutputStream(dst).getChannel();
+        in.transferTo(0, in.size(), out);
+        in.close();
+        out.close();
     }
-Flag: $flag_true
+Flag: $flag_false
 --
 """
 )
 
 example_one_ojclone = Template(
     """
-    ## Example
-Code snippet 1: 
-int main()
-{
-	int a;
-         scanf ("%d",&a);
-	if (a==9)
-	    printf ("9\n");
-	else if (a==6)
-		printf ("2\n");
-	return 0;
-}
-Code snippet 2:
-int main ( )
-{
-	int year, month, day, num = 0, i, 
-		a[12] = {31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-	cin >> year >> month >> day;
-	if((year % 400 == 0)||((year % 100 != 0)&&(year % 4 == 0)))
-		a[1] = 29;
-	else a[1] = 28;
-	for(i = 0;i < month-1;i++)              
-	{
-		num += a[i];
-	}
-	num += day;                             
-	cout << num <<endl;
-	return 0;
-}
-Flag: $flag_false
---
-    """
-)
-
-example_few_ojclone = Template(
-    """
-    ## Example
-Code snippet 1: 
-int main()
-{
-	int a;
-         scanf ("%d",&a);
-	if (a==9)
-	    printf ("9\n");
-	else if (a==6)
-		printf ("2\n");
-	return 0;
-}
-Code snippet 2:
-int main ( )
-{
-	int year, month, day, num = 0, i, 
-		a[12] = {31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-	cin >> year >> month >> day;
-	if((year % 400 == 0)||((year % 100 != 0)&&(year % 4 == 0)))
-		a[1] = 29;
-	else a[1] = 28;
-	for(i = 0;i < month-1;i++)              
-	{
-		num += a[i];
-	}
-	num += day;                             
-	cout << num <<endl;
-	return 0;
-}
-Flag: $flag_false
---
-## Example
-Code snippet 1:
-int main(){
-int n,k,w[200];
-cin>>n;memset(w,0,sizeof(w));
-for(int i=0;i<n;i++){
-cin>>k;
-if(!w[k]){
-if(i)cout<<' ';
-w[k]=1;
-cout<<k;
-}
-}
-return 0;
-}
-Code snippet 2:     
-int main(){
-    int N=100;
-    int k,m,n,i,a[N][N],b[N],c,d,e[N],f[N];
-    scanf("%d",&k);
-    for(i=0;i<k;i++){
-        b[i]=0;
-        scanf("%d %d",&e[i],&f[i]);
-        m=e[i];n=f[i];
-        for(c=0;c<m;c++){
-            for(d=0;d<n;d++){
-                scanf("%d",&a[c][d]);
-            }
-        }
-        for(c=0;c<m;c++){
-            b[i]=b[i]+a[c][0]+a[c][n-1];
-        }
-        for(d=1;d<n-1;d++){
-            b[i]=b[i]+a[0][d]+a[m-1][d];
-        }
-        printf("%d",b[i]);
-        printf("\n");
-    }
-    return 0;
-}
-
-Flag: $flag_false
---
 ## Example
 Code snippet 1: 
-int main(){
-int n,k,w[200];
-cin>>n;memset(w,0,sizeof(w));
-for(int i=0;i<n;i++){
-cin>>k;
-if(!w[k]){
-if(i)cout<<' ';
-w[k]=1;
-cout<<k;
-}
-}
-return 0;
-}
-Code snippet 2:
-int main(){
-    int a[20001];
-    int n,i,j,l,num;
-    scanf("%d",&n);
-    for(i=1;i<=n;i++){scanf("%d",&a[i]);}
-    num=0;
-    for(i=1;i<=n;i++){
-		for(j=1;j<i;j++){
-			if(a[j]==a[i]){
-            a[i]=0;
-            num++;
-            break;
-			}
-		}
-		}
-	j=0;
-	for(i=1;i<=n;i++){if(a[i]!=0){
-		j++;
-		if(j!=n-num){
-		printf("%d ",a[i]);}
-		else{printf("%d",a[i]);
-		break;}
-	}}
+int main (){
+	int n,i,m,a=0,t;
 	scanf("%d",&n);
+	for (i=1;i<=n*n;i++)
+
+	{scanf("%d",&m);
+	if (m==0)
+		a=a+1;
+	}
+	
+	t=(a+4)/4;
+	printf("%d",(t-2)*(t-2));
 	return 0;
+}
+Code snippet 2:
+int main ( )
+int main(int argc, char* argv[])
+{
+	int n,i=0,j;
+	int N,k,p;
+	scanf ("%d",&n);
+	N=n*n;
+	for (k=0;k<N;k++)
+	{
+		scanf ("%d",&p);
+		if (p==0)
+			i++;
+	}
+	j=((i/4)-1)*((i/4)-1);
+    printf ("%d\n",j);
 }
 Flag: $flag_true
 --
+"""
+)
+
+example_few_ojclone = Template(
+"""
+## Example
+Code snippet 1: 
+int main (){
+	int n,i,m,a=0,t;
+	scanf("%d",&n);
+	for (i=1;i<=n*n;i++)
+
+	{scanf("%d",&m);
+	if (m==0)
+		a=a+1;
+	}
+	
+	t=(a+4)/4;
+	printf("%d",(t-2)*(t-2));
+	return 0;
+}
+Code snippet 2:
+int main ( )
+int main(int argc, char* argv[])
+{
+	int n,i=0,j;
+	int N,k,p;
+	scanf ("%d",&n);
+	N=n*n;
+	for (k=0;k<N;k++)
+	{
+		scanf ("%d",&p);
+		if (p==0)
+			i++;
+	}
+	j=((i/4)-1)*((i/4)-1);
+    printf ("%d\n",j);
+}
+Flag: $flag_true
+--
+## Example
+Code snippet 1:
+int main()
+{
+	int a;
+         scanf ("%d",&a);
+	if (a==9)
+	    printf ("9\n");
+	else if (a==6)
+		printf ("2\n");
+	return 0;
+}
+Code snippet 2:     
+int main() {
+	int n;
+	cin >> n;
+	int a[n];
+	for(int i1=0;i1<n;i1++)
+		cin >> a[i1];
+	int j=0;
+	for(int i1=0;i1<n;i1++){
+		j=i1+1;
+		for (int i2=i1+1;i2<n;i2++)
+		{
+			if(a[i2]!=a[i1])
+			{a[j]=a[i2];j++;}
+		}
+		n=j;
+	}
+	for(int i1=0;i1<n;i1++){
+	cout << a[i1];
+	if (i1!=n-1)
+		cout << " ";
+	}
+	return 0;
+}
+
+Flag: $flag_false
+--
+## Example
+Code snippet 1: 
+int main(){
+	int row,col;cin>>row>>col;
+	int i;int a[10010],*p=a;
+	for(i=0;i<row*col;i++){cin>>*p;p++;}
+	p=a;
+    for(int c=0;c<row+col;c++){
+    	for(i=c;i>=0;i--){
+    		if(i<col&&c-i<row){cout<<*(p+i+(c-i)*col)<<endl;}
+    	}
+    }
+	return 0;
+}
+Code snippet 2:
+int main()
+{
+	int n=0,x=0,a[100]={0},i=0;
+	cin>>n;
+	cin>>x;
+	cout<<x;
+	a[x-1]=1;
+	for(i=2;i<=n;i++)
+	{
+		cin>>x;
+		if(a[x-1]==0)
+		{
+			cout<<" "<<x;
+			a[x-1]=1;
+		}
+	}
+	return 0;
+}
+Flag: $flag_false
+--
+## Example
+Code snippet 1: 
+int main()
+{
+	int n,k,a[1000];
+	cin>>n>>k;
+	for (int i=0;i<n;i++) cin>>a[i];
+	for (int i=0;i<n;i++){
+		for (int j=0;j<n;j++) {
+			if (a[j]==k-a[i]) {
+				cout<<"yes";
+				return 0;
+			}
+		}
+	} 
+cout<<"no";
+return 0;
+}
+Code snippet 2:
+int main()
+{
+	int n,k,i,j,flag;
+	int a[1000];
+	cin>>n>>k;
+	flag=0;
+	for (i=0;i<n;i++)
+	{
+		cin>>a[i];
+		for(j=0;j<i;j++)
+			if (a[j]+a[i]==k) flag=1;
+	}
+	if (flag==1) cout<<"yes"<<endl;
+	else cout<<"no"<<endl;
+	return 0;
+}
+Flag: $flag_true
+__
 """
 )
 

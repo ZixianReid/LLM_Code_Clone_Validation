@@ -5,4 +5,4 @@ PROMPT:
   NAME: 'few_shot'
 
 DATA:
-  NAME: 'Reid996/OJClone_code_clone_unbalanced'
+  NAME: 'Reid996/big_clone_bench'

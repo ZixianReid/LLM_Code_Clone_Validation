@@ -7,18 +7,19 @@ _C = CN()
 # -----------------------------------------------------------------------------
 # Config definition
 # -----------------------------------------------------------------------------
-
 # -----------------------------------------------------------------------------
 # Task definition
 # -----------------------------------------------------------------------------
 _C.TASK = CN()
 _C.TASK.NAME = "prompt_engineering"  # fine_tuning and prompt_engineering
+_C.TASK.CACHE_DIR = None
 
 # -----------------------------------------------------------------------------
 # Model definition
 # -----------------------------------------------------------------------------
 _C.MODEL = CN()
 _C.MODEL.NAME = 'deepseek-ai/deepseek-coder-1.3b-instruct'
+_C.MODEL.DEVICE = 'cuda:0'
 
 # -----------------------------------------------------------------------------
 # DATA
@@ -37,15 +38,10 @@ _C.PROMPT.INDICATE_FALSE = "No"
 # -----------------------------------------------------------------------------
 # Output
 # -----------------------------------------------------------------------------
-__BASE_PATH = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/output'
 _C.OUTPUT = CN()
-_C.OUTPUT.PATH = os.path.join(__BASE_PATH, _C.DATA.NAME, _C.PROMPT.NAME)
+# _C.OUTPUT.PATH = os.path.join(__BASE_PATH, _C.DATA.NAME, _C.PROMPT.NAME)
 
+_C.OUTPUT.BASE_PATH = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/output'
 
 if __name__ == '__main__':
-    def create_folder_if_not_exist(path):
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-    print(_C.OUTPUT.PATH)
-    create_folder_if_not_exist(_C.OUTPUT.PATH)
+    print(_C.TASK.CACHE_DIR)

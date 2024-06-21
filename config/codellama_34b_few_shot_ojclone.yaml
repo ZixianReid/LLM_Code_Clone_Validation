@@ -1,5 +1,5 @@
 MODEL:
-  NAME: "deepseek-ai/deepseek-coder-1.3b-instruct"
+  NAME: "codellama/CodeLlama-34b-Instruct-hf"
 
 PROMPT:
   NAME: 'few_shot'
