@@ -97,7 +97,7 @@ class CodeLlama7b(PromptEngineering):
     def run(self, cfg, dataset):
         path = create_folder(cfg)
         self.model.to(cfg.MODEL.DEVICE)
-        dataset_test = dataset.dataset_test
+        dataset_test = dataset.dataset_test.select(range(1,5))
         outputs = []
         for ele in tqdm.tqdm(dataset_test):
             try:
@@ -109,7 +109,10 @@ class CodeLlama7b(PromptEngineering):
             except torch.cuda.OutOfMemoryError:
                 output = 'Error: OUT OF MEMORY'
             outputs.append(output)
-        print(outputs)
+        df = pd.DataFrame(dataset_test)  # Convert to DataFrame. Implementation depends on `Dataset`
+        df['output'] = outputs  # pandas allows this operation
+
+        df.to_csv(os.path.join(path, 'output.csv'), index=False)
 
 
 

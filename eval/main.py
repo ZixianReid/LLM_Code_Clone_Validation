@@ -4,7 +4,7 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 pd.set_option('display.max_columns', None)  # to display all columns
 pd.set_option('display.expand_frame_repr', False)  # to disable line wrapping
 pd.set_option('display.max_colwidth', None)  # to display full content of each cell
-path = ("/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/output/deepseek-ai/deepseek-coder-1.3b-instruct/Reid996/OJClone_code_clone_unbalanced/few_shot/output.csv")
+path = ("/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/output/deepseek-ai/deepseek-coder-1.3b-instruct/Reid996/big_clone_bench/one_shot/output.csv")
 
 df = pd.read_csv(path)
 
@@ -17,15 +17,18 @@ def transfer_output(ele):
     else:
         return -1
 
-
+df['output'] = df['output'].fillna('Unknown')
 # remove
 df = df[~df['output'].str.contains('Error: OUT OF MEMORY')]
+df = df[~df['output'].str.contains('Unknown')]
 
 df['output'] = df['output'].apply(transfer_output)
 
 
 
-df['output'] = df.apply(lambda row: 0 if (row['output'] == -1 and row['label'] == 1) else (1 if (row['output'] == -1 and row['label'] == 0) else row['output']), axis=1)
+
+# df['output'] = df.apply(lambda row: 0 if (row['output'] == -1 and row['label'] == 1) else (1 if (row['output'] == -1 and row['label'] == 0) else row['output']), axis=1)
+df = df[df['output'] != -1]
 
 
 # Calculate Precision, Recall, and F1-Score
