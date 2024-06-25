@@ -27,3 +27,4 @@ def print_info(cfg):
     print("Dataset Name: {}".format(cfg.DATA.NAME))
     print("------------------------------------")
     print("Prompt Style: {}".format(cfg.PROMPT.NAME))
+    print("------------------------------------")
