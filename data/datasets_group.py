@@ -2,6 +2,7 @@ from datasets import Dataset
 from datasets import load_dataset
 from string import Template
 
+
 class MainDataset:
 
     def __init__(self, name, prompt, cache_dir):
@@ -21,14 +22,15 @@ class MainDataset:
 
     def __contact_output_fine_tuning(self, dataset):
         output = Template("(output) $output")
-        fine_tuning_template = Template(self.instruction_template + output)
+        fine_tuning_template_string = self.instruction_template.template + output.template  # Add the string values
+        fine_tuning_template = Template(fine_tuning_template_string)  # Convert back to
 
         dataset = dataset.map(
             lambda example: {
                 'prompt_input': fine_tuning_template.substitute({
                     "code_1": example['func1'],
                     "code_2": example['func2'],
-                    "output": 'Yes' if example['output'] == 1 else 'No'
+                    "output": 'Yes' if example['label'] == 1 else 'No'
                 })
             }
         )
