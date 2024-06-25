@@ -1,5 +1,6 @@
 from datasets import Dataset
 from datasets import load_dataset
+from string import Template
 
 class MainDataset:
 
@@ -11,21 +12,36 @@ class MainDataset:
         self.dataset_val = self.dataset['validation']
         self.instruction_template = prompt
 
-    def __contact_input(self, dataset):
+    def __contact_input_prompt(self, dataset):
         dataset = dataset.map(
             lambda example: {'prompt_input': self.instruction_template.substitute({"code_1": example['func1'],
                                                                                    "code_2": example['func2']})}
         )
         return dataset
 
+    def __contact_output_fine_tuning(self, dataset):
+        output = Template("(output) $output")
+        fine_tuning_template = Template(self.instruction_template + output)
+
+        dataset = dataset.map(
+            lambda example: {
+                'prompt_input': fine_tuning_template.substitute({
+                    "code_1": example['func1'],
+                    "code_2": example['func2'],
+                    "output": 'Yes' if example['output'] == 1 else 'No'
+                })
+            }
+        )
+        return dataset
+
     def build(self):
         # map to specific column
-        self.dataset_train = self.__contact_input(self.dataset_train)
-        self.dataset_test = self.__contact_input(self.dataset_test)
-        self.dataset_val = self.__contact_input(self.dataset_val)
+        self.dataset_train = self.__contact_output_fine_tuning(self.dataset_train)
+        self.dataset_test = self.__contact_output_fine_tuning(self.dataset_test)
+        self.dataset_val = self.__contact_output_fine_tuning(self.dataset_val)
 
     def build_prompt(self):
-        self.dataset_test = self.__contact_input(self.dataset_test)
+        self.dataset_test = self.__contact_input_prompt(self.dataset_test)
 
 
 class BCBDataset(MainDataset):

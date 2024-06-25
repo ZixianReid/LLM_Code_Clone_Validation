@@ -9,7 +9,7 @@ from utils.utils import print_info
 def run(cfg):
     # build prompt
     prompt = build_prompt(cfg)
-    # build dataset
+    #build dataset
     dataset = build_dataset(cfg, prompt)
 
     # build model
@@ -25,7 +25,7 @@ def run(cfg):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_file', type=str,
-                        default='/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/config/codellama_7b_one_shot_ojclone.yaml')
+                        default='/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/config/codellama_34b_few_shot_ojclone.yaml')
     parser.add_argument(
         "opts",
         help="Modify config options using the command-line",

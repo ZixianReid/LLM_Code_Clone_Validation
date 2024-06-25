@@ -47,6 +47,7 @@ class DeepseekCoder13b(PromptEngineering):
                 xx = self.tokenizer.encode(ele['prompt_input'], return_tensors="pt").to(
                     self.model.device)
                 output = self.model.generate(xx, max_new_tokens=15)
+
                 output = self.tokenizer.decode(output[0][len(xx[0]):], skip_special_tokens=True)
             except torch.cuda.OutOfMemoryError:
                 output = 'Error: OUT OF MEMORY'
@@ -71,12 +72,16 @@ class CodeLlama34b(PromptEngineering):
         outputs = []
         for ele in tqdm.tqdm(dataset_test):
             try:
-                output = self.client.text_generation(ele['prompt_input'], max_new_tokens=15)
+                output = self.client.text_generation(ele['prompt_input'], max_new_tokens=25)
                 outputs.append(output)
             except huggingface_hub.utils._errors.HfHubHTTPError:
                 time.sleep(4000)
                 output = self.client.text_generation(ele['prompt_input'], max_new_tokens=15)
                 outputs.append(output)
+            except huggingface_hub.errors.ValidationError:
+                output = 'Error: OUT OF MEMORY'
+                outputs.append(output)
+
         df = pd.DataFrame(dataset_test)  # Convert to DataFrame. Implementation depends on `Dataset`
         df['output'] = outputs  # pandas allows this operation
 
@@ -97,15 +102,17 @@ class CodeLlama7b(PromptEngineering):
     def run(self, cfg, dataset):
         path = create_folder(cfg)
         self.model.to(cfg.MODEL.DEVICE)
-        dataset_test = dataset.dataset_test.select(range(1,5))
+        dataset_test = dataset.dataset_test
         outputs = []
         for ele in tqdm.tqdm(dataset_test):
             try:
                 torch.cuda.empty_cache()
                 xx = self.tokenizer.encode(ele['prompt_input'], return_tensors="pt").to(
                     self.model.device)
-                output = self.model.generate(xx, max_new_tokens=15)
-                output = self.tokenizer.decode(output[0][len(xx[0]):], skip_special_tokens=True)
+                output = self.model.generate(xx, max_new_tokens=155)
+                # output = self.tokenizer.decode(output[0][len(xx[0]):], skip_special_tokens=True)
+                output = self.tokenizer.decode(output[0], skip_special_tokens=True)
+
             except torch.cuda.OutOfMemoryError:
                 output = 'Error: OUT OF MEMORY'
             outputs.append(output)
@@ -118,7 +125,9 @@ class CodeLlama7b(PromptEngineering):
 
 __REGISTERED_MODULES__ = {'deepseek-ai/deepseek-coder-1.3b-instruct': DeepseekCoder13b,
                           'codellama/CodeLlama-34b-Instruct-hf': CodeLlama34b,
-                          'codellama/CodeLlama-7b-Instruct-hf': CodeLlama7b}
+                          'codellama/CodeLlama-7b-Instruct-hf': CodeLlama7b,
+                          'meta-llama/Meta-Llama-3-70B-Instruct': CodeLlama34b,
+                          'meta-llama/Meta-Llama-3-8B-Instruct': CodeLlama34b}
 
 
 def build_prompt_engineering(cfg):

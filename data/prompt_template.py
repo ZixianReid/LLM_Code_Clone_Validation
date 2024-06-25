@@ -20,7 +20,7 @@ definition = ("Code clones are segments of code that are either identical, synta
               "variations, structurally similar but significantly modified, or perform the same functionality with "
               "different syntax.")
 
-output = Template(
+output_requirement = Template(
     "Output only '$flag_true' if the snippets are code clones, and only '$flag_false' if they are not. Provide no other "
     "output.")
 
@@ -169,7 +169,7 @@ Flag: $flag_true
 )
 
 example_few_ojclone = Template(
-"""
+    """
 ## Example
 Code snippet 1: 
 int main (){
@@ -324,34 +324,9 @@ Code snippet 1: $code_1
 Code snippet 2: $code_2
 """
 
-
-# prompt_zero_shot_bcb = Template(
-#     "(task) " + task + "\n" +
-#     "(definition) " + definition + "\n" +
-#     "(output_requirement )" + output + "\n" +
-#     "(input) " + input
-# )
-#
-# prompt_one_shot_bcb = Template(
-#     "(task) " + task + "\n" +
-#     "(definition) " + definition + "\n" +
-#     "(Instructions) " + Instruction_one + "\n" +
-#     "(output_requirement )" + output + "\n" +
-#     "(example) " + example_one_bcb + "\n" +
-#     "(input) " + input
-# )
-#
-# prompt_few_shot_bcb = Template(
-#     "(task) " + task + "\n" +
-#     "(definition) " + definition + "\n" +
-#     "(Instructions) " + Instruction_few + "\n" +
-#     "(output_requirement) " + output + "\n" +
-#     "(examples) " + example_few_bcb + "\n" +
-#     "(input) " + input
-# )
-
-# _REGISTERED_TEMPLATES = {"prompt_zero_shot": prompt_zero_shot, "prompt_one_shot": prompt_one_shot,
-#                          "prompt_few_shot": prompt_few_shot}
+output = """
+$output
+"""
 
 class PromptTemplate:
     def __init__(self, true_flag, false_flag):
@@ -359,12 +334,23 @@ class PromptTemplate:
         self.instruction_one = instruction_one.substitute({"flag_true": true_flag, "flag_false": false_flag})
         self.instruction_few = instruction_few.substitute({"flag_true": true_flag, "flag_false": false_flag})
         self.definition = definition
-        self.output = output.substitute({"flag_true": true_flag, "flag_false": false_flag})
+        self.output_requirement = output_requirement.substitute({"flag_true": true_flag, "flag_false": false_flag})
         self.example_few_bcb = example_few_bcb.substitute({"flag_true": true_flag, "flag_false": false_flag})
         self.example_one_bcb = example_one_bcb.substitute({"flag_true": true_flag, "flag_false": false_flag})
         self.example_one_ojclone = example_one_ojclone.substitute({"flag_true": true_flag, "flag_false": false_flag})
         self.example_few_ojclone = example_few_ojclone.substitute({"flag_true": true_flag, "flag_false": false_flag})
         self.input = input
+        self.prefix = """
+<s>
+[INST]
+<<SYS>>
+"""
+        self.midfix = "<</SYS>>"
+        self.suffix = """
+[/INST]
+</s>
+"""
+        self.output = output
 
 
 class PromptTemplateBCB(PromptTemplate):
@@ -376,9 +362,9 @@ class PromptTemplateBCB(PromptTemplate):
             "(task) " + self.task + "\n" +
             "(definition) " + self.definition + "\n" +
             "(Instructions) " + self.instruction_one + "\n" +
-            "(output_requirement )" + self.output + "\n" +
+            "(output_requirement )" + self.output_requirement + "\n" +
             "(example) " + self.example_one_bcb + "\n" +
-            "(input) " + self.input
+            "(input) " + self.input + "\n"
         )
         return temp
 
@@ -387,9 +373,9 @@ class PromptTemplateBCB(PromptTemplate):
             "(task) " + self.task + "\n" +
             "(definition) " + self.definition + "\n" +
             "(Instructions) " + self.instruction_few + "\n" +
-            "(output_requirement )" + self.output + "\n" +
+            "(output_requirement )" + self.output_requirement + "\n" +
             "(example) " + self.example_few_bcb + "\n" +
-            "(input) " + self.input
+            "(input) " + self.input + "\n"
         )
         return temp
 
@@ -397,8 +383,8 @@ class PromptTemplateBCB(PromptTemplate):
         temp = Template(
             "(task) " + self.task + "\n" +
             "(definition) " + self.definition + "\n" +
-            "(output_requirement )" + self.output + "\n" +
-            "(input) " + self.input
+            "(output_requirement )" + self.output_requirement + "\n" +
+            "(input) " + self.input + "\n"
         )
         return temp
 
@@ -412,9 +398,9 @@ class PromptTemplateOJclone(PromptTemplate):
             "(task) " + self.task + "\n" +
             "(definition) " + self.definition + "\n" +
             "(Instructions) " + self.instruction_one + "\n" +
-            "(output_requirement )" + self.output + "\n" +
+            "(output_requirement )" + self.output_requirement + "\n" +
             "(example) " + self.example_one_ojclone + "\n" +
-            "(input) " + self.input
+            "(input) " + self.input + "\n"
         )
         return temp
 
@@ -423,9 +409,9 @@ class PromptTemplateOJclone(PromptTemplate):
             "(task) " + self.task + "\n" +
             "(definition) " + self.definition + "\n" +
             "(Instructions) " + self.instruction_few + "\n" +
-            "(output_requirement )" + self.output + "\n" +
+            "(output_requirement )" + self.output_requirement + "\n" +
             "(example) " + self.example_few_ojclone + "\n" +
-            "(input) " + self.input
+            "(input) " + self.input + "\n"
         )
 
         return temp
@@ -434,8 +420,8 @@ class PromptTemplateOJclone(PromptTemplate):
         temp = Template(
             "(task) " + self.task + "\n" +
             "(definition) " + self.definition + "\n" +
-            "(output_requirement )" + self.output + "\n" +
-            "(input) " + self.input
+            "(output_requirement )" + self.output_requirement + "\n" +
+            "(input) " + self.input + "\n"
         )
         return temp
 
@@ -463,4 +449,6 @@ def build_prompt(cfg):
 
 
 if __name__ == '__main__':
-    pass
+    xx = Template("dsad $2")
+
+    xx1 = Template("dsad $1")
