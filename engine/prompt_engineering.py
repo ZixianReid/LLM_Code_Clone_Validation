@@ -16,17 +16,18 @@ def create_folder(cfg):
 
 
 class PromptEngineering:
-    def __init__(self, model_name, cache_dir):
+    def __init__(self, model_name, cache_dir, device_map):
         self.model_name = model_name
         self.cache_dir = cache_dir
+        self.device_map = device_map
 
     def run(self, cfg, dataset):
         pass
 
 
 class DeepseekCoder13b(PromptEngineering):
-    def __init__(self, model_name, cache_dir):
-        super().__init__(model_name, cache_dir)
+    def __init__(self, model_name, cache_dir, device_map):
+        super().__init__(model_name, cache_dir, device_map)
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, cache_dir=self.cache_dir)
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
@@ -60,8 +61,8 @@ class DeepseekCoder13b(PromptEngineering):
 
 
 class CodeLlama34b(PromptEngineering):
-    def __init__(self, model_name, cache_dir):
-        super().__init__(model_name, cache_dir)
+    def __init__(self, model_name, cache_dir, device_map):
+        super().__init__(model_name, cache_dir, device_map)
         self.client = InferenceClient(model=self.model_name,
                                       token="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")
 
@@ -89,14 +90,14 @@ class CodeLlama34b(PromptEngineering):
 
 
 class CodeLlama7b(PromptEngineering):
-    def __init__(self, model_name, cache_dir):
-        super().__init__(model_name, cache_dir)
+    def __init__(self, model_name, cache_dir, device_map):
+        super().__init__(model_name, cache_dir, device_map)
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, cache_dir=self.cache_dir)
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
             trust_remote_code=True,
-            device_map="auto",
-            torch_dtype=torch.float16,
+            device_map=self.device_map,
+            torch_dtype=torch.bfloat16,
             cache_dir=self.cache_dir
         )
     def run(self, cfg, dataset):
@@ -129,9 +130,12 @@ __REGISTERED_MODULES__ = {'deepseek-ai/deepseek-coder-1.3b-instruct': DeepseekCo
                           'meta-llama/Meta-Llama-3-70B-Instruct': CodeLlama34b,
                           'meta-llama/Meta-Llama-3-8B-Instruct': CodeLlama34b}
 
+__REGISTERED_DEVICE__ = {0: {"": 0}}
+
 
 def build_prompt_engineering(cfg):
     cache_dir = cfg.TASK.CACHE_DIR
     model_name = cfg.MODEL.NAME
-    prompt_engineering = __REGISTERED_MODULES__[model_name](model_name, cache_dir)
+    device_map = __REGISTERED_DEVICE__[cfg.PROMPT.DEVICE_MAP]
+    prompt_engineering = __REGISTERED_MODULES__[model_name](model_name, cache_dir, device_map)
     return prompt_engineering

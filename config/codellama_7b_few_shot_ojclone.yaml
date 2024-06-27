@@ -5,7 +5,7 @@ MODEL:
   NAME: "codellama/CodeLlama-7b-Instruct-hf"
 
 PROMPT:
-  NAME: 'one_shot'
+  NAME: 'few_shot'
 
 DATA:
   NAME: 'Reid996/OJClone_code_clone_unbalanced'

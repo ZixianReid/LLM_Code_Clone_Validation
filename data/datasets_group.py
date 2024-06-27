@@ -34,13 +34,22 @@ class MainDataset:
                 })
             }
         )
+
+        def rename_prompt_input(row):
+            row['text'] = row['prompt_input']
+            return row
+
+        dataset = dataset.map(rename_prompt_input,
+                                              remove_columns=['id1', 'id2', 'label', 'id', 'func1', 'func2',
+                                                              'prompt_input'])
         return dataset
 
     def build(self):
         # map to specific column
         self.dataset_train = self.__contact_output_fine_tuning(self.dataset_train)
-        self.dataset_test = self.__contact_output_fine_tuning(self.dataset_test)
-        self.dataset_val = self.__contact_output_fine_tuning(self.dataset_val)
+        print(self.dataset_train)
+        # self.dataset_test = self.__contact_output_fine_tuning(self.dataset_test)
+        # self.dataset_val = self.__contact_output_fine_tuning(self.dataset_val)
 
     def build_prompt(self):
         self.dataset_test = self.__contact_input_prompt(self.dataset_test)

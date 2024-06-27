@@ -10,4 +10,6 @@ pip install torch==2.3.0 torchvision==0.18.0 torchaudio==2.3.0 --index-url https
 pip install peft
 pip install yacs
 pip install trl
+pip install bitsandbytes
+pip install tensorboardX
 ```

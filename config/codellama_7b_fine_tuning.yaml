@@ -1,0 +1,12 @@
+TASK:
+  NAME: 'fine_tuning'
+  CACHE_DIR: '/data/zixian_z/huggingface'
+
+MODEL:
+  NAME: 'codellama/CodeLlama-7b-Instruct-hf'
+
+
+PROMPT:
+  NAME: 'zero_shot'
+
+

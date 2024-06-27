@@ -2,9 +2,10 @@ import argparse
 # from data.datasets_group import BCBDataset
 from config import cfg
 from data import build_dataset, build_prompt
-from engine import build_prompt_engineering
+from engine import build_prompt_engineering, build_fine_tuning_model
 from utils.utils import print_info
 
+import os
 
 def run(cfg):
     # build prompt
@@ -17,7 +18,8 @@ def run(cfg):
         model = build_prompt_engineering(cfg)
         model.run(cfg, dataset)
     elif cfg.TASK.NAME == 'fine_tuning':
-        pass
+        model = build_fine_tuning_model(cfg)
+        model.train(cfg, dataset)
     else:
         print('Unknown task')
 
@@ -25,7 +27,7 @@ def run(cfg):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_file', type=str,
-                        default='/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/config/codellama_34b_few_shot_ojclone.yaml')
+                        default='/home/zixian_z/PycharmProjects/LLM_Code_Clone_Validation/config/codellama_7b_fine_tuning.yaml')
     parser.add_argument(
         "opts",
         help="Modify config options using the command-line",
@@ -40,7 +42,7 @@ def main():
     cfg.freeze()
 
     print_info(cfg)
-
+    # os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
     run(cfg)
 
 

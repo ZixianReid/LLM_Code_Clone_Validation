@@ -29,7 +29,8 @@ class FineTuningEngineering:
 class CodeLlama7b(FineTuningEngineering):
     def __init__(self, model_name, cache_dir, bnb_config, peft_config, training_arguments):
         super().__init__(model_name, cache_dir, bnb_config, peft_config, training_arguments)
-        self.model = AutoModelForCausalLM.from_pretrained(model_name, quantization_config=bnb_config)
+        self.model = AutoModelForCausalLM.from_pretrained(model_name, quantization_config=bnb_config,
+                                                          cache_dir=self.cache_dir,  device_map={"": 0})
         self.model.config.use_cache = False
         self.model.config.pretraining_tp = 1
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
@@ -39,17 +40,17 @@ class CodeLlama7b(FineTuningEngineering):
     def train(self, cfg, dataset):
         max_seq_length = cfg.FINE_TUNING.MAX_SEQ_LENGTH
         packing = cfg.FINE_TUNING.PACKING
-        new_model = cfg.FINE_TUNING.NEW_MODEL
-
+        new_model = cfg.FINE_TUNING.NEW_MODEL_NAME
+        dataset_train = dataset.dataset_train
         trainer = SFTTrainer(
             model=self.model,
-            train_dataset=dataset,
+            train_dataset=dataset_train,
             peft_config=self.peft_config,
             dataset_text_field="text",
             max_seq_length=max_seq_length,
             tokenizer=self.tokenizer,
             args=self.training_arguments,
-            packing=packing,
+            packing=packing
         )
 
         trainer.train()
@@ -57,7 +58,8 @@ class CodeLlama7b(FineTuningEngineering):
         trainer.model.save_pretrained(new_model)
 
 
-__REGISTERED_MODULES__ = {'codellama/CodeLlama-7b-Instruct-hf': CodeLlama7b}
+__REGISTERED_MODULES__ = {'codellama/CodeLlama-7b-Instruct-hf': CodeLlama7b,
+                          'deepseek-ai/deepseek-coder-1.3b-instruct': CodeLlama7b}
 
 
 def build_fine_tuning_model(cfg):
@@ -70,7 +72,7 @@ def build_fine_tuning_model(cfg):
     lora_alpha = cfg.FINE_TUNING.LOAR_ALPHA
     lora_dropout = cfg.FINE_TUNING.LOAR_DROPOUT
     lora_r = cfg.FINE_TUNING.LORA_R
-    output_dir = cfg.FINE_TUNING.LORA_R
+    output_dir = cfg.FINE_TUNING.OUTPUT_DIR
     num_train_epochs = cfg.FINE_TUNING.NUM_TRAIN_EPOCHS
     per_device_train_batch_size = cfg.FINE_TUNING.PER_DEVICE_TRAIN_BATCH_SIZE
     gradient_accumulation_steps = cfg.FINE_TUNING.GRADIENT_ACCUMULATION_STEPS
@@ -132,4 +134,4 @@ def build_fine_tuning_model(cfg):
     fine_tuning_model = __REGISTERED_MODULES__[model_name](model_name, cache_dir, bnb_config, peft_config,
                                                            training_arguments)
 
-    pass
+    return fine_tuning_model
