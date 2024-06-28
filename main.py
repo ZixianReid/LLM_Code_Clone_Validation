@@ -42,7 +42,7 @@ def main():
     cfg.freeze()
 
     print_info(cfg)
-    # os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
+
     run(cfg)
 
 

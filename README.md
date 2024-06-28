@@ -12,4 +12,5 @@ pip install yacs
 pip install trl
 pip install bitsandbytes
 pip install tensorboardX
+pip install deepspeed
 ```
