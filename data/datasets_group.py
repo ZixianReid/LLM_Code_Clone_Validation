@@ -58,7 +58,7 @@ class MainDataset:
 class BCBDataset(MainDataset):
     def __init__(self, name, prompt, cache_dir):
         super().__init__(name, prompt, cache_dir)
-        self.dataset_test = self.dataset['test'].select(range(1, 10))
+        self.dataset_test = self.dataset['test']
 
 
 class OJCloneDataset(MainDataset):
@@ -71,7 +71,7 @@ class GPTCloneDataset(MainDataset):
     def __init__(self, name, prompt, cache_dir):
         self.dataset = load_dataset(name, cache_dir=cache_dir)
         self.instruction_template = prompt
-        self.dataset_test = self.dataset['test'].select(range(1, 10))
+        self.dataset_test = self.dataset['test']
 
 
 __REGISTERED_DATASETS = {"Reid996/big_clone_bench": BCBDataset,
