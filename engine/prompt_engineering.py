@@ -111,8 +111,8 @@ class CodeLlama7b(PromptEngineering):
                 xx = self.tokenizer.encode(ele['prompt_input'], return_tensors="pt").to(
                     self.model.device)
                 output = self.model.generate(xx, max_new_tokens=155)
-                # output = self.tokenizer.decode(output[0][len(xx[0]):], skip_special_tokens=True)
-                output = self.tokenizer.decode(output[0], skip_special_tokens=True)
+                output = self.tokenizer.decode(output[0][len(xx[0]):], skip_special_tokens=True)
+                # output = self.tokenizer.decode(output[0], skip_special_tokens=True)
 
             except torch.cuda.OutOfMemoryError:
                 output = 'Error: OUT OF MEMORY'
@@ -128,7 +128,8 @@ __REGISTERED_MODULES__ = {'deepseek-ai/deepseek-coder-1.3b-instruct': DeepseekCo
                           'codellama/CodeLlama-34b-Instruct-hf': CodeLlama34b,
                           'codellama/CodeLlama-7b-Instruct-hf': CodeLlama7b,
                           'meta-llama/Meta-Llama-3-70B-Instruct': CodeLlama34b,
-                          'meta-llama/Meta-Llama-3-8B-Instruct': CodeLlama34b}
+                          'meta-llama/Meta-Llama-3-8B-Instruct': CodeLlama34b,
+                          'deepseek-ai/deepseek-coder-7b-instruct-v1.5': DeepseekCoder13b}
 
 __REGISTERED_DEVICE__ = {0: {"": 0}}
 

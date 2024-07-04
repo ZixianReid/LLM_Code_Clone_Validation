@@ -8,7 +8,7 @@ pd.set_option('display.max_colwidth', None)  # to display full content of each c
 dataset = load_dataset('Reid996/OJClone_code_clone_unbalanced')
 
 # Convert the dataset to pandas
-dataset = dataset['test'].to_pandas()
+dataset = dataset['test.txt'].to_pandas()
 
 
 # Append func1 with itself and place it into the new column 'tmp'

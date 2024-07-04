@@ -1,8 +1,0 @@
-MODEL:
-  NAME: "deepseek-ai/deepseek-coder-1.3b-instruct"
-
-PROMPT:
-  NAME: 'zero_shot'
-
-DATA:
-  NAME: 'Reid996/OJClone_code_clone_unbalanced'

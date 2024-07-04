@@ -1,6 +1,6 @@
 import os
 
-base_path = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/BCB'
+base_path = '/datasets_source/BCBdata'
 
 path_1 = './bigclonebenchdata/17156131.txt'
 

@@ -9,7 +9,7 @@ class MainDataset:
         super().__init__()
         self.dataset = load_dataset(name, cache_dir=cache_dir)
         self.dataset_train = self.dataset['train']
-        self.dataset_test = self.dataset['test']
+        self.dataset_test = self.dataset['test.txt']
         self.dataset_val = self.dataset['validation']
         self.instruction_template = prompt
 
@@ -58,13 +58,13 @@ class MainDataset:
 class BCBDataset(MainDataset):
     def __init__(self, name, prompt, cache_dir):
         super().__init__(name, prompt, cache_dir)
-        self.dataset_test = self.dataset['test']
+        self.dataset_test = self.dataset['test.txt']
 
 
 class OJCloneDataset(MainDataset):
     def __init__(self, name, prompt, cache_dir):
         super().__init__(name, prompt, cache_dir)
-        self.dataset_test = self.dataset['test']
+        self.dataset_test = self.dataset['test.txt']
 
 
 __REGISTERED_DATASETS = {"Reid996/big_clone_bench": BCBDataset,

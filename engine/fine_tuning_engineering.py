@@ -59,7 +59,8 @@ class CodeLlama7b(FineTuningEngineering):
 
 
 __REGISTERED_MODULES__ = {'codellama/CodeLlama-7b-Instruct-hf': CodeLlama7b,
-                          'deepseek-ai/deepseek-coder-1.3b-instruct': CodeLlama7b}
+                          'deepseek-ai/deepseek-coder-1.3b-instruct': CodeLlama7b,
+                          'deepseek-ai/deepseek-coder-7b-instruct-v1.5': CodeLlama7b}
 
 
 def build_fine_tuning_model(cfg):

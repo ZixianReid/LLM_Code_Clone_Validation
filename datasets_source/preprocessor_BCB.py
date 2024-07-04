@@ -2,11 +2,11 @@ import pandas as pd
 import os
 
 
-train_path = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/BCB/traindata.txt'
+train_path = '/datasets_source/BCBdata/traindata.txt'
 
-test_path = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/BCB/testdata.txt'
+test_path = '/datasets_source/BCBdata/testdata.txt'
 
-validation_path = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/BCB/devdata.txt'
+validation_path = '/datasets_source/BCBdata/devdata.txt'
 
 
 def read_txt_to_df(file_path):
@@ -27,13 +27,13 @@ validation_df = read_txt_to_df(validation_path)
 
 
 def load_file(file_path):
-    base_path = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/BCB'
+    base_path = '/datasets_source/BCBdata'
     path_1 = os.path.join(base_path, file_path)
     with open(path_1, 'r') as file:
         text = file.read()
     return text
 def build(df):
-    base_path = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/BCB'
+    base_path = '/datasets_source/BCBdata'
     df['label'] = df['label'].apply(lambda x: 1 if x == 1 else 0)
     df['id1'] = df['path1'].apply(lambda x: os.path.basename(x).split('.txt')[0])
     df['id2'] = df['path2'].apply(lambda x: os.path.basename(x).split('.txt')[0])
@@ -65,11 +65,11 @@ def save_df(df, file_path, columns_order):
 columns_order = ['id', 'id1', 'id2', 'fun1', 'fun2', 'label']
 
 
-train_out_path = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/BCB/train.csv'
+train_out_path = '/datasets_source/BCBdata/train.csv'
 
-test_out_path = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/BCB/test.csv'
+test_out_path = '/datasets_source/BCBdata/test.csv'
 
-validation_out_path = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/BCB/validation.csv'
+validation_out_path = '/datasets_source/BCBdata/validation.csv'
 
 save_df(train_df, train_out_path, columns_order)
 

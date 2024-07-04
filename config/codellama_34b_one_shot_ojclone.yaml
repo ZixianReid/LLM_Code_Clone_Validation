@@ -1,8 +1,0 @@
-MODEL:
-  NAME: "codellama/CodeLlama-34b-Instruct-hf"
-
-PROMPT:
-  NAME: 'one_shot'
-
-DATA:
-  NAME: 'Reid996/OJClone_code_clone_unbalanced'

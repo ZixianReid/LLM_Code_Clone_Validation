@@ -13,7 +13,7 @@ def read_pkl_file(filename):
 #
 # train_ids = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/OJClone/train/train_.pkl'
 #
-# test_ids = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/OJClone/test/test_.pkl'
+# test_ids = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/OJClone/test.txt/test_.pkl'
 #
 # valid_ids = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/OJClone/dev/dev_.pkl'
 #
@@ -50,5 +50,5 @@ def read_pkl_file(filename):
 #
 # #export to csv order as [['id', 'id1', 'id2', 'fun1', 'fun2', 'label']]
 # train_df.to_csv('/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/OJClone/train/train.csv', index=False)
-# test_df.to_csv('/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/OJClone/test/test.csv', index=False)
+# test_df.to_csv('/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/OJClone/test.txt/test.txt.csv', index=False)
 # valid_df.to_csv('/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/datasets_source/OJClone/dev/validation.csv', index=False)

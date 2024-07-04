@@ -5,7 +5,7 @@ ds = load_dataset('google/code_x_glue_cc_clone_detection_big_clone_bench')
 
 df_train = pd.DataFrame(ds['train'])
 
-df_test = pd.DataFrame(ds['test'])
+df_test = pd.DataFrame(ds['test.txt'])
 
 df_validation = pd.DataFrame(ds['validation'])
 
@@ -18,6 +18,6 @@ df_validation['label'] = df_validation['label'].apply(lambda x: 1 if x is True e
 
 df_train.to_csv('train.csv', index=False)
 
-df_test.to_csv('test.csv', index=False)
+df_test.to_csv('test.txt.csv', index=False)
 df_validation.to_csv('validation.csv', index=False)
 

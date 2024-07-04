@@ -1,4 +1,6 @@
 datasets_source/atcoder/java-python-clones.db
-datasets_source/GPTCloneBench/
-datasets_source/BCB/
-datasets_source
+datasets_source/BCBdata/BigCloneBench_BCEvalVersion.tar.gz
+datasets_source/BCBdata/*.db
+datasets_source/BCBdata/bigclonebenchdata/*.txt
+
+
