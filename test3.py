@@ -4,7 +4,7 @@ import pandas as pd
 #
 # df = df[df['output'].str.contains('No')]
 
-df = pd.read_csv('/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/test.csv')
+df = pd.read_csv('/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/output/deepseek-ai/deepseek-coder-7b-instruct-v1.5/Reid996/GPTCloneBench/zero_shot/output.csv')
 
 
 
