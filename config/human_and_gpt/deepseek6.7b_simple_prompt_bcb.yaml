@@ -1,0 +1,5 @@
+MODEL:
+  NAME: "deepseek-ai/deepseek-coder-7b-instruct-v1.5"
+
+DATA:
+  NAME: 'Reid996/big_clone_bench'
