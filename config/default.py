@@ -25,7 +25,7 @@ _C.MODEL.DEVICE = 'cuda:0'
 # DATA
 # -----------------------------------------------------------------------------
 _C.DATA = CN()
-_C.DATA.NAME = 'Reid996/OJClone_code_clone_unbalanced'
+_C.DATA.NAME = ''
 
 # -----------------------------------------------------------------------------
 # Prompt
@@ -40,7 +40,7 @@ _C.PROMPT.DEVICE_MAP = 0
 # Fine-tuning
 # -----------------------------------------------------------------------------
 _C.FINE_TUNING = CN()
-_C.FINE_TUNING.NEW_MODEL_NAME = 'codellama2-code_clone'
+_C.FINE_TUNING.NEW_MODEL_NAME = '/home/zixian_z/PycharmProjects/LLM_Code_Clone_Validation/output_FT/llama8b/'
 
 _C.FINE_TUNING.LORA_R = 64
 _C.FINE_TUNING.LOAR_ALPHA = 16
@@ -55,14 +55,14 @@ _C.FINE_TUNING.USE_NESTED_QUANT=True
 
 
 
-_C.FINE_TUNING.NUM_TRAIN_EPOCHS = 1
+_C.FINE_TUNING.NUM_TRAIN_EPOCHS = 5
 _C.FINE_TUNING.FP16 = False
 _C.FINE_TUNING.BF16 = False
 
 
-_C.FINE_TUNING.PER_DEVICE_TRAIN_BATCH_SIZE = 1
-_C.FINE_TUNING.PER_DEVICE_EVAL_BATCH_SIZE = 1
-_C.FINE_TUNING.GRADIENT_ACCUMULATION_STEPS = 1
+_C.FINE_TUNING.PER_DEVICE_TRAIN_BATCH_SIZE = 4
+_C.FINE_TUNING.PER_DEVICE_EVAL_BATCH_SIZE = 4
+_C.FINE_TUNING.GRADIENT_ACCUMULATION_STEPS = 16
 _C.FINE_TUNING.GRADIENT_CHECKPOINT = True
 
 _C.FINE_TUNING.MAX_GRAD_NORM = 0.3
@@ -76,7 +76,7 @@ _C.FINE_TUNING.GROUP_BY_LENGTH = True
 _C.FINE_TUNING.SAVE_STEPS = 0
 _C.FINE_TUNING.LOGGING_STEPS = 25
 _C.FINE_TUNING.MAX_STEPS = -1
-_C.FINE_TUNING.MAX_SEQ_LENGTH = None
+_C.FINE_TUNING.MAX_SEQ_LENGTH = 256
 _C.FINE_TUNING.PACKING = False
 _C.FINE_TUNING.DEVICE_MAP = 0
 

@@ -1,8 +1,9 @@
 TASK:
   NAME: 'fine_tuning'
   CACHE_DIR: '/data/zixian_z/huggingface'
+
 MODEL:
-  NAME: "deepseek-ai/deepseek-coder-7b-instruct-v1.5"
+  NAME: "meta-llama/Meta-Llama-3-8B-Instruct"
 
 DATA:
   NAME: 'Reid996/big_clone_bench'

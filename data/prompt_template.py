@@ -1,7 +1,8 @@
 from string import Template
 
+prefix_ft = "<s>[INST]"
+
 Simple_template = """
-<s>[INST]
 Please analyze the following two code snippets and determine if they are code clones. 
 Respond with only 'Yes' for clones or 'No' if not. Provide no other output
 """
@@ -28,7 +29,7 @@ class PromptTemplate:
         return Template(Simple_template + "\n" + input_PE)
 
     def get_input_template_FT(self):
-        return Template(Simple_template + "\n" + input_FT)
+        return Template(prefix_ft + "\n" + Simple_template + "\n" + input_FT)
 
 
 def build_prompt(cfg):
@@ -41,4 +42,4 @@ def build_prompt(cfg):
 
 
 if __name__ == '__main__':
-    pass
+    print(Template(prefix_ft + "\n" + Simple_template + "\n" + input_FT).template)

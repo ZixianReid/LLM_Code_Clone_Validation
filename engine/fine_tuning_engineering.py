@@ -30,7 +30,7 @@ class CodeLlama7b(FineTuningEngineering):
     def __init__(self, model_name, cache_dir, bnb_config, peft_config, training_arguments):
         super().__init__(model_name, cache_dir, bnb_config, peft_config, training_arguments)
         self.model = AutoModelForCausalLM.from_pretrained(model_name, quantization_config=bnb_config,
-                                                          cache_dir=self.cache_dir, device_map="auto")
+                                                          cache_dir=self.cache_dir)
         self.model.config.use_cache = False
         self.model.config.pretraining_tp = 1
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
@@ -54,13 +54,13 @@ class CodeLlama7b(FineTuningEngineering):
         )
 
         trainer.train()
-
-        trainer.model.save_pretrained(new_model)
+        trainer.save_model(new_model)
 
 
 __REGISTERED_MODULES__ = {'codellama/CodeLlama-7b-Instruct-hf': CodeLlama7b,
                           'deepseek-ai/deepseek-coder-1.3b-instruct': CodeLlama7b,
-                          'deepseek-ai/deepseek-coder-7b-instruct-v1.5': CodeLlama7b}
+                          'deepseek-ai/deepseek-coder-7b-instruct-v1.5': CodeLlama7b,
+                          'meta-llama/Meta-Llama-3-8B-Instruct': CodeLlama7b}
 
 
 def build_fine_tuning_model(cfg):
@@ -130,7 +130,7 @@ def build_fine_tuning_model(cfg):
         group_by_length=group_by_length,
         lr_scheduler_type=lr_scheduler_type,
         report_to="tensorboard",
-        deepspeed= "/home/zixian_z/PycharmProjects/LLM_Code_Clone_Validation/config/ds/llama2_ds_zero3_config.json"
+        deepspeed="/home/zixian_z/PycharmProjects/LLM_Code_Clone_Validation/config/ds/llama2_ds_zero3_config.json"
     )
 
     fine_tuning_model = __REGISTERED_MODULES__[model_name](model_name, cache_dir, bnb_config, peft_config,
