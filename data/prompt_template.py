@@ -1,6 +1,7 @@
 from string import Template
 
 Simple_template = """
+<s>[INST]
 Please analyze the following two code snippets and determine if they are code clones. 
 Respond with only 'Yes' for clones or 'No' if not. Provide no other output
 """
@@ -13,7 +14,9 @@ Code snippet 2: $code_2
 input_FT = """
 Code snippet 1: $code_1
 Code snippet 2: $code_2
+[/INST] 
 $output
+</s>
 """
 
 
