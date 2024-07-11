@@ -26,7 +26,7 @@ class FineTuningEngineering:
         pass
 
 
-class CodeLlama7b(FineTuningEngineering):
+class RemoteMachineFineTuning(FineTuningEngineering):
     def __init__(self, model_name, cache_dir, bnb_config, peft_config, training_arguments):
         super().__init__(model_name, cache_dir, bnb_config, peft_config, training_arguments)
         self.model = AutoModelForCausalLM.from_pretrained(model_name, quantization_config=bnb_config,
@@ -57,10 +57,10 @@ class CodeLlama7b(FineTuningEngineering):
         trainer.save_model(new_model)
 
 
-__REGISTERED_MODULES__ = {'codellama/CodeLlama-7b-Instruct-hf': CodeLlama7b,
-                          'deepseek-ai/deepseek-coder-1.3b-instruct': CodeLlama7b,
-                          'deepseek-ai/deepseek-coder-7b-instruct-v1.5': CodeLlama7b,
-                          'meta-llama/Meta-Llama-3-8B-Instruct': CodeLlama7b}
+__REGISTERED_MODULES__ = {'codellama/CodeLlama-7b-Instruct-hf': RemoteMachineFineTuning,
+                          'deepseek-ai/deepseek-coder-1.3b-instruct': RemoteMachineFineTuning,
+                          'deepseek-ai/deepseek-coder-7b-instruct-v1.5': RemoteMachineFineTuning,
+                          'meta-llama/Meta-Llama-3-8B-Instruct': RemoteMachineFineTuning}
 
 
 def build_fine_tuning_model(cfg):

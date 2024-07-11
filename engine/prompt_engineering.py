@@ -15,6 +15,24 @@ def create_folder(cfg):
     return path
 
 
+# def write_tmp_file(path, ele, output):
+#     with open(f"{path}/tmp.txt", "a") as f:
+#         f.write(str(ele['id']))
+#         f.write(' ')
+#         f.write(output)
+#         f.write('\n')
+#
+#
+# def filter_dataset(dataset, path):
+#     if os.path.isfile(os.path.join(path, 'tmp.txt')):
+#         with open(os.path.join(path, 'tmp.txt'), 'r') as file:
+#             ids = [int(line.split()[0]) for line in file]
+#             dataset = [ele for ele in dataset if ele['id'] not in ids]
+#             return dataset
+#     else:
+#         return dataset
+
+
 class PromptEngineering:
     def __init__(self, model_name, cache_dir, device_map):
         self.model_name = model_name
@@ -25,42 +43,50 @@ class PromptEngineering:
         pass
 
 
-class DeepseekCoder13b(PromptEngineering):
-    def __init__(self, model_name, cache_dir, device_map):
-        super().__init__(model_name, cache_dir, device_map)
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, cache_dir=self.cache_dir)
-        self.model = AutoModelForCausalLM.from_pretrained(
-            self.model_name,
-            trust_remote_code=True,
-            device_map="auto",
-            torch_dtype=torch.float16,
-            cache_dir=self.cache_dir
-        )
+# class LocalMachinePromptEngineering(PromptEngineering):
+#     def __init__(self, model_name, cache_dir, device_map):
+#         super().__init__(model_name, cache_dir, device_map)
+#         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, cache_dir=self.cache_dir)
+#
+#
+#         self.model = AutoModelForCausalLM.from_pretrained(
+#             self.model_name,
+#             trust_remote_code=True,
+#             device_map="auto",
+#             torch_dtype=torch.bfloat16,
+#             cache_dir=self.cache_dir
+#         )
+#
+#     def run(self, cfg, dataset):
+#         path = create_folder(cfg)
+#
+#         dataset_test = dataset.dataset_test
+#         outputs = []
+#         for ele in tqdm.tqdm(dataset_test):
+#             try:
+#                 torch.cuda.empty_cache()
+#                 encoded_input = self.tokenizer.encode(ele['prompt_input'], return_tensors="pt").to(
+#                                     self.model.device)
+#                 output = self.model.generate(encoded_input, max_new_tokens=15)
+#                 output = self.tokenizer.decode(output[0][len(encoded_input[0]):], skip_special_tokens=True)
+#             except torch.cuda.OutOfMemoryError:
+#                 output = 'Error: OUT OF MEMORY'
+#             except Exception as e:
+#                 output = 'Error'
+#                 with open(os.path.join(path, 'errors.txt'), 'a') as f:
+#                     f.write(str(e))
+#                     f.write(' ')
+#                     f.write(str(ele['id']))
+#                     f.write('\n')
+#             outputs.append(output)
+#
+#         df = pd.DataFrame(dataset_test)  # Convert to DataFrame. Implementation depends on `Dataset`
+#         df['output'] = outputs  # pandas allows this operation
+#
+#         df.to_csv(os.path.join(path, 'output.csv'), index=False)
 
-    def run(self, cfg, dataset):
-        path = create_folder(cfg)
 
-        dataset_test = dataset.dataset_test
-        outputs = []
-        for ele in tqdm.tqdm(dataset_test):
-            try:
-                torch.cuda.empty_cache()
-                xx = self.tokenizer.encode(ele['prompt_input'], return_tensors="pt").to(
-                    self.model.device)
-                output = self.model.generate(xx, max_new_tokens=15)
-
-                output = self.tokenizer.decode(output[0][len(xx[0]):], skip_special_tokens=True)
-            except torch.cuda.OutOfMemoryError:
-                output = 'Error: OUT OF MEMORY'
-            outputs.append(output)
-
-        df = pd.DataFrame(dataset_test)  # Convert to DataFrame. Implementation depends on `Dataset`
-        df['output'] = outputs  # pandas allows this operation
-
-        df.to_csv(os.path.join(path, 'output.csv'), index=False)
-
-
-class CodeLlama34b(PromptEngineering):
+class APIPromptEngineering(PromptEngineering):
     def __init__(self, model_name, cache_dir, device_map):
         super().__init__(model_name, cache_dir, device_map)
         self.client = InferenceClient(model=self.model_name,
@@ -72,39 +98,39 @@ class CodeLlama34b(PromptEngineering):
         dataset_test = dataset.dataset_test
         outputs = []
         for ele in tqdm.tqdm(dataset_test):
-            try:
-                output = self.client.text_generation(ele['prompt_input'], max_new_tokens=25)
-                outputs.append(output)
-            except huggingface_hub.utils._errors.HfHubHTTPError:
-                time.sleep(4000)
-                output = self.client.text_generation(ele['prompt_input'], max_new_tokens=15)
-                outputs.append(output)
-            except huggingface_hub.inference._text_generation.ValidationError:
-                output = 'Error: OUT OF MEMORY'
-                outputs.append(output)
-            except huggingface_hub.errors.ValidationError:
-                output = 'Error: OUT OF MEMORY'
-                outputs.append(output)
-            except Exception as e:
-                output = 'Error'
-                outputs.append(output)
-                with open(os.path.join(path, 'errors.txt'), 'a') as f:
-                    f.write(str(e))
-                    f.write(' ')
-                    f.write(ele['id'])
-                    f.write('\n')
-
-
-        df = pd.DataFrame(dataset_test)  # Convert to DataFrame. Implementation depends on `Dataset`
-        df['output'] = outputs  # pandas allows this operation
+            success = False
+            while not success:
+                try:
+                    output = self.client.text_generation(ele['prompt_input'], max_new_tokens=15)
+                    success = True
+                except huggingface_hub.utils._errors.HfHubHTTPError:
+                    time.sleep(300)
+                    print("---------------------------")
+                    print("meeting rate limits")
+                except huggingface_hub.inference._text_generation.ValidationError and huggingface_hub.errors.ValidationError:
+                    output = 'Error: OUT OF MEMORY'
+                    success = True
+                except Exception as e:
+                    output = 'Error'
+                    with open(os.path.join(path, 'errors.txt'), 'a') as f:
+                        f.write(str(e))
+                        f.write(' ')
+                        f.write(str(ele['id']))
+                        f.write('\n')
+                    success = True
+            outputs.append(output)
+        df = pd.DataFrame(dataset_test)
+        df['output'] = outputs
 
         df.to_csv(os.path.join(path, 'output.csv'), index=False)
 
 
-class CodeLlama7b(PromptEngineering):
+class LocalMachinePromptEngineering(PromptEngineering):
     def __init__(self, model_name, cache_dir, device_map):
         super().__init__(model_name, cache_dir, device_map)
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, cache_dir=self.cache_dir)
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
             trust_remote_code=True,
@@ -114,8 +140,6 @@ class CodeLlama7b(PromptEngineering):
         )
 
     def run(self, cfg, dataset):
-        print("----------------")
-        print("Starting Inference")
         path = create_folder(cfg)
         self.model.to(cfg.MODEL.DEVICE)
         dataset_test = dataset.dataset_test
@@ -123,12 +147,21 @@ class CodeLlama7b(PromptEngineering):
         for ele in tqdm.tqdm(dataset_test):
             try:
                 torch.cuda.empty_cache()
-                xx = self.tokenizer.encode(ele['prompt_input'], return_tensors="pt").to(
-                    self.model.device)
-                output = self.model.generate(xx, max_new_tokens=15)
-                output = self.tokenizer.decode(output[0][len(xx[0]):], skip_special_tokens=True)
-                # output = self.tokenizer.decode(output[0], skip_special_tokens=True)
+                # Encode the input text
+                encoded_input = self.tokenizer(ele['prompt_input'], return_tensors="pt",
+                                               padding=True)
+                encoded_input = encoded_input.to(self.model.device)
 
+                # Generate output using the correctly formatted arguments
+                output = self.model.generate(
+                    input_ids=encoded_input['input_ids'],
+                    attention_mask=encoded_input['attention_mask'],
+                    pad_token_id=self.tokenizer.pad_token_id,
+                    max_new_tokens=15
+                )
+
+                # Decode generated tokens to text
+                output = self.tokenizer.decode(output[0][len(encoded_input[0]):], skip_special_tokens=True)
             except torch.cuda.OutOfMemoryError:
                 output = 'Error: OUT OF MEMORY'
             outputs.append(output)
@@ -138,12 +171,12 @@ class CodeLlama7b(PromptEngineering):
         df.to_csv(os.path.join(path, 'output.csv'), index=False)
 
 
-__REGISTERED_MODULES__ = {'deepseek-ai/deepseek-coder-1.3b-instruct': DeepseekCoder13b,
-                          'codellama/CodeLlama-34b-Instruct-hf': CodeLlama34b,
-                          'codellama/CodeLlama-7b-Instruct-hf': CodeLlama7b,
-                          'meta-llama/Meta-Llama-3-70B-Instruct': CodeLlama34b,
-                          'deepseek-ai/deepseek-coder-7b-instruct-v1.5': DeepseekCoder13b,
-                          'meta-llama/Meta-Llama-3-8B-Instruct': CodeLlama7b}
+__REGISTERED_MODULES__ = {'deepseek-ai/deepseek-coder-1.3b-instruct': LocalMachinePromptEngineering,
+                          'codellama/CodeLlama-34b-Instruct-hf': APIPromptEngineering,
+                          'codellama/CodeLlama-7b-Instruct-hf': LocalMachinePromptEngineering,
+                          'meta-llama/Meta-Llama-3-70B-Instruct': APIPromptEngineering,
+                          'deepseek-ai/deepseek-coder-7b-instruct-v1.5': LocalMachinePromptEngineering,
+                          'meta-llama/Meta-Llama-3-8B-Instruct': LocalMachinePromptEngineering}
 
 __REGISTERED_DEVICE__ = {0: {"": 0}}
 
