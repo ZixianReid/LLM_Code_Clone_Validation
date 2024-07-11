@@ -79,9 +79,21 @@ class CodeLlama34b(PromptEngineering):
                 time.sleep(4000)
                 output = self.client.text_generation(ele['prompt_input'], max_new_tokens=15)
                 outputs.append(output)
+            except huggingface_hub.inference._text_generation.ValidationError:
+                output = 'Error: OUT OF MEMORY'
+                outputs.append(output)
             except huggingface_hub.errors.ValidationError:
                 output = 'Error: OUT OF MEMORY'
                 outputs.append(output)
+            except Exception as e:
+                output = 'Error'
+                outputs.append(output)
+                with open(os.path.join(path, 'errors.txt'), 'a') as f:
+                    f.write(str(e))
+                    f.write(' ')
+                    f.write(ele['id'])
+                    f.write('\n')
+
 
         df = pd.DataFrame(dataset_test)  # Convert to DataFrame. Implementation depends on `Dataset`
         df['output'] = outputs  # pandas allows this operation
@@ -100,7 +112,10 @@ class CodeLlama7b(PromptEngineering):
             torch_dtype=torch.bfloat16,
             cache_dir=self.cache_dir
         )
+
     def run(self, cfg, dataset):
+        print("----------------")
+        print("Starting Inference")
         path = create_folder(cfg)
         self.model.to(cfg.MODEL.DEVICE)
         dataset_test = dataset.dataset_test
@@ -110,7 +125,7 @@ class CodeLlama7b(PromptEngineering):
                 torch.cuda.empty_cache()
                 xx = self.tokenizer.encode(ele['prompt_input'], return_tensors="pt").to(
                     self.model.device)
-                output = self.model.generate(xx, max_new_tokens=155)
+                output = self.model.generate(xx, max_new_tokens=15)
                 output = self.tokenizer.decode(output[0][len(xx[0]):], skip_special_tokens=True)
                 # output = self.tokenizer.decode(output[0], skip_special_tokens=True)
 
@@ -123,13 +138,12 @@ class CodeLlama7b(PromptEngineering):
         df.to_csv(os.path.join(path, 'output.csv'), index=False)
 
 
-
 __REGISTERED_MODULES__ = {'deepseek-ai/deepseek-coder-1.3b-instruct': DeepseekCoder13b,
                           'codellama/CodeLlama-34b-Instruct-hf': CodeLlama34b,
                           'codellama/CodeLlama-7b-Instruct-hf': CodeLlama7b,
                           'meta-llama/Meta-Llama-3-70B-Instruct': CodeLlama34b,
-                          'meta-llama/Meta-Llama-3-8B-Instruct': CodeLlama34b,
-                          'deepseek-ai/deepseek-coder-7b-instruct-v1.5': DeepseekCoder13b}
+                          'deepseek-ai/deepseek-coder-7b-instruct-v1.5': DeepseekCoder13b,
+                          'meta-llama/Meta-Llama-3-8B-Instruct': CodeLlama7b}
 
 __REGISTERED_DEVICE__ = {0: {"": 0}}
 

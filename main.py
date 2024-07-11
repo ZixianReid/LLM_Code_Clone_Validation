@@ -27,7 +27,7 @@ def run(cfg):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_file', type=str,
-                        default='/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/config/human_and_gpt/deepseek6.7b_simple_prompt_gptclonebench.yaml')
+                        default='/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/config/human_and_gpt/llama8b_simple_prompt_gptclonebench.yaml')
     parser.add_argument(
         "opts",
         help="Modify config options using the command-line",
