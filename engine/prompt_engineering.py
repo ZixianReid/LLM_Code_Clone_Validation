@@ -15,24 +15,6 @@ def create_folder(cfg):
     return path
 
 
-# def write_tmp_file(path, ele, output):
-#     with open(f"{path}/tmp.txt", "a") as f:
-#         f.write(str(ele['id']))
-#         f.write(' ')
-#         f.write(output)
-#         f.write('\n')
-#
-#
-# def filter_dataset(dataset, path):
-#     if os.path.isfile(os.path.join(path, 'tmp.txt')):
-#         with open(os.path.join(path, 'tmp.txt'), 'r') as file:
-#             ids = [int(line.split()[0]) for line in file]
-#             dataset = [ele for ele in dataset if ele['id'] not in ids]
-#             return dataset
-#     else:
-#         return dataset
-
-
 class PromptEngineering:
     def __init__(self, model_name, cache_dir, device_map):
         self.model_name = model_name
@@ -41,49 +23,6 @@ class PromptEngineering:
 
     def run(self, cfg, dataset):
         pass
-
-
-# class LocalMachinePromptEngineering(PromptEngineering):
-#     def __init__(self, model_name, cache_dir, device_map):
-#         super().__init__(model_name, cache_dir, device_map)
-#         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, cache_dir=self.cache_dir)
-#
-#
-#         self.model = AutoModelForCausalLM.from_pretrained(
-#             self.model_name,
-#             trust_remote_code=True,
-#             device_map="auto",
-#             torch_dtype=torch.bfloat16,
-#             cache_dir=self.cache_dir
-#         )
-#
-#     def run(self, cfg, dataset):
-#         path = create_folder(cfg)
-#
-#         dataset_test = dataset.dataset_test
-#         outputs = []
-#         for ele in tqdm.tqdm(dataset_test):
-#             try:
-#                 torch.cuda.empty_cache()
-#                 encoded_input = self.tokenizer.encode(ele['prompt_input'], return_tensors="pt").to(
-#                                     self.model.device)
-#                 output = self.model.generate(encoded_input, max_new_tokens=15)
-#                 output = self.tokenizer.decode(output[0][len(encoded_input[0]):], skip_special_tokens=True)
-#             except torch.cuda.OutOfMemoryError:
-#                 output = 'Error: OUT OF MEMORY'
-#             except Exception as e:
-#                 output = 'Error'
-#                 with open(os.path.join(path, 'errors.txt'), 'a') as f:
-#                     f.write(str(e))
-#                     f.write(' ')
-#                     f.write(str(ele['id']))
-#                     f.write('\n')
-#             outputs.append(output)
-#
-#         df = pd.DataFrame(dataset_test)  # Convert to DataFrame. Implementation depends on `Dataset`
-#         df['output'] = outputs  # pandas allows this operation
-#
-#         df.to_csv(os.path.join(path, 'output.csv'), index=False)
 
 
 class APIPromptEngineering(PromptEngineering):
@@ -107,7 +46,7 @@ class APIPromptEngineering(PromptEngineering):
                     time.sleep(300)
                     print("---------------------------")
                     print("meeting rate limits")
-                except huggingface_hub.inference._text_generation.ValidationError and huggingface_hub.errors.ValidationError:
+                except huggingface_hub.inference._text_generation.ValidationError or huggingface_hub.errors.ValidationError:
                     output = 'Error: OUT OF MEMORY'
                     success = True
                 except Exception as e:
