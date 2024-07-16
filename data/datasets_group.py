@@ -1,3 +1,5 @@
+from select import select
+
 from datasets import Dataset
 from datasets import load_dataset
 from string import Template
@@ -13,6 +15,16 @@ class MainDataset:
         self.dataset_test = self.dataset['test']
         self.dataset_val = self.dataset['validation']
         self.instruction_template = prompt
+
+    def set_data_test(self, dataset_test):
+        self.dataset_test = dataset_test
+
+    def set_data_train(self, dataset_train):
+        self.dataset_train = dataset_train
+
+    def set_data_val(self, dataset_val):
+        self.dataset_val = dataset_val
+
 
     def __contact_input_prompt(self, dataset):
         dataset = dataset.map(
@@ -125,15 +137,35 @@ __REGISTERED_DATASETS = {"Reid996/big_clone_bench": BCBDataset,
                          "Reid996/OJClone_code_clone": OJCloneDataset,
                          'Reid996/GPTCloneBench': GPTCloneDataset}
 
+def filter_dataset(dataset:MainDataset, filter_path):
+    if filter_path == '':
+        return dataset
+    else:
+        df = pd.read_csv(filter_path)
+        df = df[df['output'].str.contains('Error: OUT OF MEMORY')]
+
+        df_dict = df.to_dict('list')
+
+        dataset_test = dataset.dataset_test
+        dataset_test = dataset_test.filter(lambda example: example['id'] in df_dict['id'])
+
+        dataset.set_data_test(dataset_test)
+
+        return dataset
+
 
 def build_dataset(cfg, prompt):
     cache_dir = cfg.TASK.CACHE_DIR
     dataset = __REGISTERED_DATASETS[cfg.DATA.NAME](cfg.DATA.NAME, prompt, cache_dir)
     if cfg.TASK.NAME == "prompt_engineering":
         dataset.build_prompt()
+        dataset = filter_dataset(dataset, cfg.OUTPUT.PROCESSED_PATH)
     elif cfg.TASK.NAME == "fine_tuning":
         dataset.build()
     else:
         print("Unknown task")
+
+
+
 
     return dataset

@@ -91,5 +91,7 @@ _C.OUTPUT = CN()
 
 _C.OUTPUT.BASE_PATH = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/output'
 
+_C.OUTPUT.PROCESSED_PATH = ''
+
 if __name__ == '__main__':
     print(_C.TASK.CACHE_DIR)
