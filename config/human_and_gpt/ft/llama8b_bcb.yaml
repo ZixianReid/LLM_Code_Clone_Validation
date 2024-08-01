@@ -1,0 +1,11 @@
+TASK:
+  CACHE_DIR: '/data/zixian_z/huggingface'
+
+MODEL:
+  NAME: "/home/zixian_z/PycharmProjects/LLM_Code_Clone_Validation/output_FT/llama8b"
+
+DATA:
+  NAME: 'Reid996/big_clone_bench'
+
+OUTPUT:
+  BASE_PATH: '/home/zixian_z/PycharmProjects/LLM_Code_Clone_Validation/output'

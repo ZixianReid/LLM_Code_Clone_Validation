@@ -57,7 +57,7 @@ class BCBDataset(MainDataset):
                 'prompt_input': self.instruction_template.substitute({
                     "code_1": example['func1'],
                     "code_2": example['func2'],
-                    "output": 'Yes' if example['label'] == 1 else 'No'
+                    "output": '###RESULT###@@YES@@' if example['label'] == 1 else '###RESULT###@@NO@@'
                 })
             }
         )
@@ -77,8 +77,8 @@ class BCBDataset(MainDataset):
 
         dataset_true = dataset[dataset['label'] == 1]
 
-        dataset_false_sampled = dataset_false.sample(frac=0.25, random_state=1)
-        dataset_true_sampled = dataset_true.sample(frac=0.25, random_state=1)
+        dataset_false_sampled = dataset_false.sample(frac=0.0001, random_state=1)
+        dataset_true_sampled = dataset_true.sample(frac=0.0001, random_state=1)
 
         dataset = pd.concat([dataset_false_sampled, dataset_true_sampled])
 
@@ -87,7 +87,7 @@ class BCBDataset(MainDataset):
 
     def build(self):
         # map to specific column
-        self.dataset_train = self.__sample_dataset(self.dataset_train)
+        # self.dataset_train = self.__sample_dataset(self.dataset_train)
         self.dataset_train = self.__contact_output_fine_tuning(self.dataset_train)
 
 

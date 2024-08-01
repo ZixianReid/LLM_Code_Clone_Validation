@@ -11,7 +11,7 @@ from gradio_client import Client
 
 
 def create_folder(cfg):
-    path = os.path.join(cfg.OUTPUT.BASE_PATH, cfg.MODEL.NAME, cfg.DATA.NAME, cfg.PROMPT.NAME)
+    path = os.path.join(cfg.OUTPUT.BASE_PATH, cfg.DATA.NAME, cfg.PROMPT.NAME)
     create_folder_if_not_exist(path)
     return path
 
@@ -142,7 +142,8 @@ __REGISTERED_MODULES__ = {'deepseek-ai/deepseek-coder-1.3b-instruct': LocalMachi
                           'codellama/CodeLlama-7b-Instruct-hf': LocalMachinePromptEngineering,
                           'meta-llama/Meta-Llama-3-70B-Instruct': APIPromptEngineering,
                           'deepseek-ai/deepseek-coder-7b-instruct-v1.5': LocalMachinePromptEngineering,
-                          'meta-llama/Meta-Llama-3-8B-Instruct': LocalMachinePromptEngineering}
+                          'meta-llama/Meta-Llama-3-8B-Instruct': LocalMachinePromptEngineering,
+                          "/home/zixian_z/PycharmProjects/LLM_Code_Clone_Validation/output_FT/llama8b": LocalMachinePromptEngineering}
 
 __REGISTERED_DEVICE__ = {0: {"": 0}}
 
