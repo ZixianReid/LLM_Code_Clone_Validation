@@ -1,10 +1,6 @@
-from datasets import load_dataset
+from accelerate.commands.config.config_args import cache_dir
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
+model = AutoModelForCausalLM.from_pretrained('/home/zixian_z/PycharmProjects/LLM_Code_Clone_Validation/output_FT/llama8b',
+                                             cache_dir = '/data/zixian_z/huggingface')
 
-dataset = load_dataset('Reid996/GPTCloneBench')
-
-dataset = dataset['test']
-
-xx = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
-
-filtered_dataset = [ele for ele in dataset if ele['id'] not in xx]
