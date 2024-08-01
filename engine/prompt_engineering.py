@@ -7,6 +7,7 @@ from huggingface_hub import InferenceClient
 import huggingface_hub
 import os
 import time
+from gradio_client import Client
 
 
 def create_folder(cfg):
@@ -109,6 +110,32 @@ class LocalMachinePromptEngineering(PromptEngineering):
 
         df.to_csv(os.path.join(path, 'output.csv'), index=False)
 
+
+class GradioPromptEngineering(PromptEngineering):
+    def __init__(self, model_name, cache_dir, device_map):
+        super().__init__(model_name, cache_dir, device_map)
+        self.client = Client("Reid996/LLM_Code_Clone_Space")
+
+    def run(self, cfg, dataset):
+        path = create_folder(cfg)
+
+        dataset_test = dataset.dataset_test
+        outputs = []
+        for ele in tqdm.tqdm(dataset_test):
+            try:
+                output = self.client.predict(
+                    prompt=ele['prompt_input'],
+                    api_name="/predict"
+                )
+            except Exception as e:
+                print(e)
+                output = 'Error: OUT OF MEMORY'
+            outputs.append(output)
+
+        df = pd.DataFrame(dataset_test)
+        df['output'] = outputs
+
+        df.to_csv(os.path.join(path, 'output1.csv'), index=False)
 
 __REGISTERED_MODULES__ = {'deepseek-ai/deepseek-coder-1.3b-instruct': LocalMachinePromptEngineering,
                           'codellama/CodeLlama-34b-Instruct-hf': APIPromptEngineering,

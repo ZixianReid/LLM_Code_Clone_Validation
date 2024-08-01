@@ -21,17 +21,18 @@ def transfer_output(ele):
 # remove
 # df = df[~df['output'].str.contains('Error: OUT OF MEMORY')]
 
-df['output_label'] = df['output'].apply(transfer_output)
-
-df = df[df['output_label'] == -1]
+# df['output_label'] = df['output'].apply(transfer_output)
+#
+# df = df[df['output_label'] != -1]
 
 # df = df[df['output'] != -1]
 #
 # Calculate Precision, Recall, and F1-Score
-# precision = precision_score(df['label'], df['output_label'])
-# recall = recall_score(df['label'], df['output_label'])
-# f1 = f1_score(df['label'], df['output_label'])
-#
-# print(f"Precision: {precision}")
-# print(f"Recall: {recall}")
-# print(f"F1-Score: {f1}")
+
+precision = precision_score(df['label'], df['output_label'])
+recall = recall_score(df['label'], df['output_label'])
+f1 = f1_score(df['label'], df['output_label'])
+
+print(f"Precision: {precision}")
+print(f"Recall: {recall}")
+print(f"F1-Score: {f1}")

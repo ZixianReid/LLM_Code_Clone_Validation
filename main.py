@@ -4,6 +4,8 @@ from config import cfg
 from data import build_dataset, build_prompt
 from engine import build_prompt_engineering, build_fine_tuning_model
 from utils.utils import print_info
+from huggingface_hub import login
+
 
 import os
 
@@ -26,6 +28,7 @@ def run(cfg):
 
 
 def main():
+    login(token='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')
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_file', type=str,
                         default='/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/config/human_and_gpt/llama8b_simple_prompt_gptclonebench.yaml')

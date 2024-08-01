@@ -1,10 +1,29 @@
-from datasets import load_dataset
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
 
-dataset = load_dataset('Reid996/GPTCloneBench')
+model_name = "meta-llama/Meta-Llama-3-8B"
 
-dataset = dataset['test']
 
-xx = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-filtered_dataset = [ele for ele in dataset if ele['id'] not in xx]
+model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    trust_remote_code=True,
+    torch_dtype=torch.bfloat16,
+)
+
+
+encoded_input = tokenizer("hello", return_tensors="pt",
+                                               padding=True)
+
+
+                # Generate output using the correctly formatted arguments
+output = model.generate(
+                input_ids=encoded_input['input_ids'],
+                    attention_mask=encoded_input['attention_mask'],
+                    pad_token_id=tokenizer.pad_token_id,
+                    max_new_tokens=15
+                )
+
+output = tokenizer.decode(output[0][len(encoded_input[0]):], skip_special_tokens=True)
