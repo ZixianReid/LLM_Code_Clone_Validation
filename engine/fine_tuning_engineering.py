@@ -11,7 +11,7 @@ from transformers import (
     logging,
 )
 from peft import LoraConfig, PeftModel
-from trl import SFTTrainer
+from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 
 
 class FineTuningEngineering:
@@ -50,7 +50,10 @@ class RemoteMachineFineTuning(FineTuningEngineering):
             max_seq_length=max_seq_length,
             tokenizer=self.tokenizer,
             args=self.training_arguments,
-            packing=packing
+            packing=packing,
+            data_collator=DataCollatorForCompletionOnlyLM(instruction_template=cfg.PROMPT.INSTRUCTION_TEMPLATE,
+                                                          response_template=cfg.PROMPT.RESPONSE_TEMPLATE,
+                                                          tokenizer=self.tokenizer)
         )
 
         trainer.train()
@@ -112,6 +115,9 @@ def build_fine_tuning_model(cfg):
         task_type="CAUSAL_LM",
     )
 
+    # collator = DataCollatorForCompletionOnlyLM(instruction_template="<s>[INST]",
+    #                                            response_template=response_template, tokenizer=tokenizer, mlm=False)
+
     training_arguments = TrainingArguments(
         output_dir=output_dir,
         num_train_epochs=num_train_epochs,
@@ -129,8 +135,8 @@ def build_fine_tuning_model(cfg):
         warmup_ratio=warmup_ratio,
         group_by_length=group_by_length,
         lr_scheduler_type=lr_scheduler_type,
-        report_to="tensorboard",
-        deepspeed="/home/zixian_z/PycharmProjects/LLM_Code_Clone_Validation/config/ds/llama2_ds_zero3_config.json"
+        report_to="tensorboard"
+        # deepspeed="/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/config/ds/llama2_ds_zero3_config.json"
     )
 
     fine_tuning_model = __REGISTERED_MODULES__[model_name](model_name, cache_dir, bnb_config, peft_config,

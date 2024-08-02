@@ -8,14 +8,14 @@ import pandas as pd
 
 class MainDataset:
 
-    def __init__(self, name, prompt, cache_dir):
+    def __init__(self, name, prompt, cache_dir, cfg):
         super().__init__()
         self.dataset = load_dataset(name, cache_dir=cache_dir)
         self.dataset_train = self.dataset['train']
         self.dataset_test = self.dataset['test']
         self.dataset_val = self.dataset['validation']
         self.instruction_template = prompt
-
+        self.cfg = cfg
     def set_data_test(self, dataset_test):
         self.dataset_test = dataset_test
 
@@ -42,8 +42,8 @@ class MainDataset:
 
 
 class BCBDataset(MainDataset):
-    def __init__(self, name, prompt, cache_dir):
-        super().__init__(name, prompt, cache_dir)
+    def __init__(self, name, prompt, cache_dir, cfg):
+        super().__init__(name, prompt, cache_dir, cfg)
         self.dataset_train = self.dataset['train']
         self.dataset_test = self.dataset['test']
 
@@ -57,7 +57,7 @@ class BCBDataset(MainDataset):
                 'prompt_input': self.instruction_template.substitute({
                     "code_1": example['func1'],
                     "code_2": example['func2'],
-                    "output": '###RESULT###@@YES@@' if example['label'] == 1 else '###RESULT###@@NO@@'
+                    "output": self.cfg.PROMPT.POSITIVE_FLAG if example['label'] == 1 else self.cfg.PROMPT.NEGATIVE_FLAG
                 })
             }
         )
@@ -77,8 +77,8 @@ class BCBDataset(MainDataset):
 
         dataset_true = dataset[dataset['label'] == 1]
 
-        dataset_false_sampled = dataset_false.sample(frac=0.0001, random_state=1)
-        dataset_true_sampled = dataset_true.sample(frac=0.0001, random_state=1)
+        dataset_false_sampled = dataset_false.sample(frac=0.1, random_state=1)
+        dataset_true_sampled = dataset_true.sample(frac=0.1, random_state=1)
 
         dataset = pd.concat([dataset_false_sampled, dataset_true_sampled])
 
@@ -87,13 +87,14 @@ class BCBDataset(MainDataset):
 
     def build(self):
         # map to specific column
-        # self.dataset_train = self.__sample_dataset(self.dataset_train)
+        self.dataset_train = self.__sample_dataset(self.dataset_train)
+
         self.dataset_train = self.__contact_output_fine_tuning(self.dataset_train)
 
 
 class OJCloneDataset(MainDataset):
-    def __init__(self, name, prompt, cache_dir):
-        super().__init__(name, prompt, cache_dir)
+    def __init__(self, name, prompt, cache_dir, cfg):
+        super().__init__(name, prompt, cache_dir, cfg)
         self.dataset_test = self.dataset['test']
 
     def __contact_output_fine_tuning(self, dataset):
@@ -127,7 +128,8 @@ class OJCloneDataset(MainDataset):
 
 
 class GPTCloneDataset(MainDataset):
-    def __init__(self, name, prompt, cache_dir):
+    def __init__(self, name, prompt, cache_dir, cfg):
+        super().__init__(name, prompt, cache_dir, cfg)
         self.dataset = load_dataset(name, cache_dir=cache_dir)
         self.instruction_template = prompt
         self.dataset_test = self.dataset['test']
@@ -156,7 +158,7 @@ def filter_dataset(dataset:MainDataset, filter_path):
 
 def build_dataset(cfg, prompt):
     cache_dir = cfg.TASK.CACHE_DIR
-    dataset = __REGISTERED_DATASETS[cfg.DATA.NAME](cfg.DATA.NAME, prompt, cache_dir)
+    dataset = __REGISTERED_DATASETS[cfg.DATA.NAME](cfg.DATA.NAME, prompt, cache_dir, cfg)
     if cfg.TASK.NAME == "prompt_engineering":
         dataset.build_prompt()
         dataset = filter_dataset(dataset, cfg.OUTPUT.PROCESSED_PATH)

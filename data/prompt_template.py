@@ -16,10 +16,11 @@ Code snippet 2: $code_2
 
 input_FT = """
 Code snippet 1: $code_1
-Code snippet 2: $code_2
-[/INST] 
+Code snippet 2: $code_2 
+"""
+
+output_FT = """
 $output
-</s>
 """
 
 
@@ -30,18 +31,20 @@ class PromptTemplate:
     def get_simple_template(self):
         return Template(prefix_ft + "\n" + Simple_template + "\n" + input_PE)
 
-    def get_input_template_FT(self):
-        return Template(prefix_ft + "\n" + Simple_template + "\n" + input_FT)
+    def get_input_template_FT(self, instruction_template, response_template):
+        return Template(instruction_template + Simple_template + input_FT + response_template + output_FT)
 
 
 def build_prompt(cfg):
     if cfg.TASK.NAME == "prompt_engineering":
         return PromptTemplate().get_simple_template()
     elif cfg.TASK.NAME == "fine_tuning":
-        return PromptTemplate().get_input_template_FT()
+        instruction_template = cfg.PROMPT.INSTRUCTION_TEMPLATE
+        response_template = cfg.PROMPT.RESPONSE_TEMPLATE
+        return PromptTemplate().get_input_template_FT(instruction_template, response_template)
     else:
         print("Unknown task")
 
 
 if __name__ == '__main__':
-    print(Template(prefix_ft + "\n" + Simple_template + "\n" + input_FT).template)
+    print(PromptTemplate().get_input_template_FT('###Instruction:', '###Response:').template)

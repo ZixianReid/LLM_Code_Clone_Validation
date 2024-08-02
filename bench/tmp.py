@@ -1,6 +1,11 @@
-import torch
-import torch.nn.functional as F
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from datasets import load_dataset
+from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 
-logits = torch.tensor([2.0, 1.0, 0.1])
-probabilities = F.softmax(logits, dim=0)
-print(probabilities)
+
+model = AutoModelForCausalLM.from_pretrained("meta-llama/Meta-Llama-3-8B-Instruct")
+tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B-Instruct")
+
+
+print(tokenizer.pad_token)
+print(tokenizer.eos_token)

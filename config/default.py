@@ -36,13 +36,18 @@ _C.PROMPT.INDICATE_TRUE = "Yes"
 _C.PROMPT.INDICATE_FALSE = "No"
 _C.PROMPT.DEVICE_MAP = 0
 
+_C.PROMPT.POSITIVE_FLAG = '###RESULT###@@YES@@'
+_C.PROMPT.NEGATIVE_FLAG = '###RESULT###@@NO@@'
+
+_C.PROMPT.INSTRUCTION_TEMPLATE = '###Instruction:'
+_C.PROMPT.RESPONSE_TEMPLATE = '###Response:'
+
 # -----------------------------------------------------------------------------
 # Fine-tuning
 # -----------------------------------------------------------------------------
 _C.FINE_TUNING = CN()
-_C.FINE_TUNING.NEW_MODEL_NAME = '/home/zixian_z/PycharmProjects/LLM_Code_Clone_Validation/output_FT/llama8b/'
 
-_C.FINE_TUNING.LORA_R = 64
+_C.FINE_TUNING.LORA_R = 32
 _C.FINE_TUNING.LOAR_ALPHA = 16
 _C.FINE_TUNING.LOAR_DROPOUT = 0.1
 
@@ -60,9 +65,9 @@ _C.FINE_TUNING.FP16 = False
 _C.FINE_TUNING.BF16 = False
 
 
-_C.FINE_TUNING.PER_DEVICE_TRAIN_BATCH_SIZE = 12
-_C.FINE_TUNING.PER_DEVICE_EVAL_BATCH_SIZE = 12
-_C.FINE_TUNING.GRADIENT_ACCUMULATION_STEPS = 16
+_C.FINE_TUNING.PER_DEVICE_TRAIN_BATCH_SIZE = 4
+_C.FINE_TUNING.PER_DEVICE_EVAL_BATCH_SIZE = 4
+_C.FINE_TUNING.GRADIENT_ACCUMULATION_STEPS = 32
 _C.FINE_TUNING.GRADIENT_CHECKPOINT = True
 
 _C.FINE_TUNING.MAX_GRAD_NORM = 0.3
@@ -79,8 +84,9 @@ _C.FINE_TUNING.MAX_STEPS = -1
 _C.FINE_TUNING.MAX_SEQ_LENGTH = 256
 _C.FINE_TUNING.PACKING = False
 _C.FINE_TUNING.DEVICE_MAP = 0
+_C.FINE_TUNING.OUTPUT_DIR = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/output_ft'
+_C.FINE_TUNING.NEW_MODEL_NAME = os.path.join(_C.FINE_TUNING.OUTPUT_DIR, os.path.basename(_C.MODEL.NAME))
 
-_C.FINE_TUNING.OUTPUT_DIR = '/data/zixian_z/output/'
 
 
 # -----------------------------------------------------------------------------
@@ -94,4 +100,4 @@ _C.OUTPUT.BASE_PATH = '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/ou
 _C.OUTPUT.PROCESSED_PATH = ''
 
 if __name__ == '__main__':
-    print(_C.TASK.CACHE_DIR)
+    print(_C.FINE_TUNING.NEW_MODEL_NAME)

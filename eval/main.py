@@ -4,7 +4,7 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 pd.set_option('display.max_columns', None)  # to display all columns
 pd.set_option('display.expand_frame_repr', False)  # to disable line wrapping
 pd.set_option('display.max_colwidth', None)  # to display full content of each cell
-path = ("/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/output/meta-llama/Meta-Llama-3-8B-Instruct/Reid996/GPTCloneBench/zero_shot/output.csv")
+path = ("/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/output/meta-llama/Meta-Llama-3-8B-Instruct/Reid996/big_clone_bench/zero_shot/output.csv")
 
 df = pd.read_csv(path)
 
@@ -21,11 +21,11 @@ def transfer_output(ele):
 # remove
 # df = df[~df['output'].str.contains('Error: OUT OF MEMORY')]
 
-# df['output_label'] = df['output'].apply(transfer_output)
+df['output_label'] = df['output'].apply(transfer_output)
 #
-# df = df[df['output_label'] != -1]
+df = df[df['output_label'] != -1]
+#
 
-# df = df[df['output'] != -1]
 #
 # Calculate Precision, Recall, and F1-Score
 

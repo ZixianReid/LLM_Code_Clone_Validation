@@ -82,7 +82,7 @@ class LocalMachinePromptEngineering(PromptEngineering):
     def run(self, cfg, dataset):
         path = create_folder(cfg)
         self.model.to(cfg.MODEL.DEVICE)
-        dataset_test = dataset.dataset_test
+        dataset_test = dataset.dataset_test.select(range(10))
         outputs = []
         for ele in tqdm.tqdm(dataset_test):
             try:
@@ -143,7 +143,7 @@ __REGISTERED_MODULES__ = {'deepseek-ai/deepseek-coder-1.3b-instruct': LocalMachi
                           'meta-llama/Meta-Llama-3-70B-Instruct': APIPromptEngineering,
                           'deepseek-ai/deepseek-coder-7b-instruct-v1.5': LocalMachinePromptEngineering,
                           'meta-llama/Meta-Llama-3-8B-Instruct': LocalMachinePromptEngineering,
-                          "/home/zixian_z/PycharmProjects/LLM_Code_Clone_Validation/output_FT/llama8b": LocalMachinePromptEngineering}
+                          "/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/output_ft/llama8b": LocalMachinePromptEngineering}
 
 __REGISTERED_DEVICE__ = {0: {"": 0}}
 

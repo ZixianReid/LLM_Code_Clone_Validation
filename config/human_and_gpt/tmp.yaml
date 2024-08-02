@@ -1,10 +1,9 @@
+TASK:
+  NAME: 'fine_tuning'
 
 MODEL:
-  NAME: "meta-llama/Meta-Llama-3-8B-Instruct"
+  NAME: "deepseek-ai/deepseek-coder-7b-instruct-v1.5"
 
 DATA:
   NAME: 'Reid996/big_clone_bench'
 
-OUTPUT:
-  PROCESSED_PATH: '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/output/meta-llama/Meta-Llama-3-8B-Instruct/Reid996/big_clone_bench/zero_shot/output.csv'
-  BASE_PATH: '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/output'
