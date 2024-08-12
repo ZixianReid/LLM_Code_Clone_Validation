@@ -1,6 +1,7 @@
 import os
 import torch
 from datasets import load_dataset
+from numpy.lib.function_base import select
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
@@ -51,8 +52,8 @@ class RemoteMachineFineTuning(FineTuningEngineering):
             tokenizer=self.tokenizer,
             args=self.training_arguments,
             packing=packing,
-            data_collator=DataCollatorForCompletionOnlyLM(instruction_template=cfg.PROMPT.INSTRUCTION_TEMPLATE,
-                                                          response_template=cfg.PROMPT.RESPONSE_TEMPLATE,
+            data_collator=DataCollatorForCompletionOnlyLM(instruction_template=self.tokenizer.encode(cfg.PROMPT.INSTRUCTION_TEMPLATE, add_special_tokens=False)[2:],
+                                                          response_template=self.tokenizer.encode(cfg.PROMPT.RESPONSE_TEMPLATE, add_special_tokens=False)[2:],
                                                           tokenizer=self.tokenizer)
         )
 
@@ -120,6 +121,8 @@ def build_fine_tuning_model(cfg):
 
     training_arguments = TrainingArguments(
         output_dir=output_dir,
+        report_to='wandb',
+        run_name=cfg.MODEL.NAME,
         num_train_epochs=num_train_epochs,
         per_device_train_batch_size=per_device_train_batch_size,
         gradient_accumulation_steps=gradient_accumulation_steps,
@@ -135,8 +138,7 @@ def build_fine_tuning_model(cfg):
         warmup_ratio=warmup_ratio,
         group_by_length=group_by_length,
         lr_scheduler_type=lr_scheduler_type,
-        report_to="tensorboard"
-        # deepspeed="/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/config/ds/llama2_ds_zero3_config.json"
+        deepspeed="/home/zixian_z/PycharmProjects/LLM_Code_Clone_Validation/config/ds/llama2_ds_zero3_config.json"
     )
 
     fine_tuning_model = __REGISTERED_MODULES__[model_name](model_name, cache_dir, bnb_config, peft_config,

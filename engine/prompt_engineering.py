@@ -97,7 +97,7 @@ class LocalMachinePromptEngineering(PromptEngineering):
                     input_ids=encoded_input['input_ids'],
                     attention_mask=encoded_input['attention_mask'],
                     pad_token_id=self.tokenizer.pad_token_id,
-                    max_new_tokens=15
+                    max_new_tokens=15,
                 )
 
                 # Decode generated tokens to text
@@ -143,7 +143,7 @@ __REGISTERED_MODULES__ = {'deepseek-ai/deepseek-coder-1.3b-instruct': LocalMachi
                           'meta-llama/Meta-Llama-3-70B-Instruct': APIPromptEngineering,
                           'deepseek-ai/deepseek-coder-7b-instruct-v1.5': LocalMachinePromptEngineering,
                           'meta-llama/Meta-Llama-3-8B-Instruct': LocalMachinePromptEngineering,
-                          "/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/output_ft/llama8b": LocalMachinePromptEngineering}
+                          "/home/zixian_z/PycharmProjects/LLM_Code_Clone_Validation/output_FT/deepseek-coder-1.3b-instruct": LocalMachinePromptEngineering}
 
 __REGISTERED_DEVICE__ = {0: {"": 0}}
 

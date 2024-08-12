@@ -4,6 +4,8 @@ from datasets import Dataset
 from datasets import load_dataset
 from string import Template
 import pandas as pd
+from transformers import AutoTokenizer
+
 
 
 class MainDataset:
@@ -77,8 +79,8 @@ class BCBDataset(MainDataset):
 
         dataset_true = dataset[dataset['label'] == 1]
 
-        dataset_false_sampled = dataset_false.sample(frac=0.1, random_state=1)
-        dataset_true_sampled = dataset_true.sample(frac=0.1, random_state=1)
+        dataset_false_sampled = dataset_false.sample(frac=0.02, random_state=1)
+        dataset_true_sampled = dataset_true.sample(frac=0.02, random_state=1)
 
         dataset = pd.concat([dataset_false_sampled, dataset_true_sampled])
 
@@ -129,7 +131,7 @@ class OJCloneDataset(MainDataset):
 
 class GPTCloneDataset(MainDataset):
     def __init__(self, name, prompt, cache_dir, cfg):
-        super().__init__(name, prompt, cache_dir, cfg)
+
         self.dataset = load_dataset(name, cache_dir=cache_dir)
         self.instruction_template = prompt
         self.dataset_test = self.dataset['test']
@@ -155,6 +157,21 @@ def filter_dataset(dataset:MainDataset, filter_path):
 
         return dataset
 
+def filter_dataset_seq_length(dataset:MainDataset, max_seq_length, model_name):
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    original_size = len(dataset.dataset_train)
+    def filter_by_token_length(example):
+        # Tokenize the text and calculate the length
+        token_length = len(tokenizer.encode(example['text']))
+        # Return True if the token length is over 256
+        return token_length > 256
+
+    filtered_dataset = dataset.dataset_train.filter(filter_by_token_length)
+
+    dataset.set_data_train(filtered_dataset)
+
+    print(f"Number of filtered samples: {original_size - len(filtered_dataset)}")
+    return dataset
 
 def build_dataset(cfg, prompt):
     cache_dir = cfg.TASK.CACHE_DIR
@@ -164,10 +181,8 @@ def build_dataset(cfg, prompt):
         dataset = filter_dataset(dataset, cfg.OUTPUT.PROCESSED_PATH)
     elif cfg.TASK.NAME == "fine_tuning":
         dataset.build()
+        dataset = filter_dataset_seq_length(dataset, cfg.FINE_TUNING.MAX_SEQ_LENGTH, cfg.MODEL.NAME)
     else:
         print("Unknown task")
-
-
-
 
     return dataset

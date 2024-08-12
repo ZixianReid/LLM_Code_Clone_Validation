@@ -1,4 +1,6 @@
 import os
+from symbol import import_name
+
 from transformers import AutoTokenizer
 
 
@@ -40,4 +42,13 @@ def print_info(cfg):
     print("------------------------------------")
     print("Gradient Accumulation Steps: {}".format(cfg.FINE_TUNING.GRADIENT_ACCUMULATION_STEPS))
     print("------------------------------------")
+    print("Fine tuning max length: {}".format(cfg.FINE_TUNING.MAX_SEQ_LENGTH))
+    print("------------------------------------")
 
+
+def wandb_configuration(cfg):
+    import os
+    import wandb
+    wandb.login(key='4bea86af0721fc5785732fd0fd63fb8b8a9ca323')
+    os.environ["WANDB_PROJECT"] = "LLM_code_clone_detection"
+    os.environ["WANDB_LOG_MODEL"] = "checkpoint"
