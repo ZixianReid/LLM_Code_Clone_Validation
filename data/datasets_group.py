@@ -92,6 +92,8 @@ class BCBDataset(MainDataset):
         # map to specific column
         self.dataset_train = self.__sample_dataset(self.dataset_train)
 
+        self.dataset_val = self.dataset_val.select(range(20))
+
         self.dataset_train = self.__contact_output_fine_tuning(self.dataset_train)
 
         self.dataset_val = self.__contact_output_fine_tuning(self.dataset_val)

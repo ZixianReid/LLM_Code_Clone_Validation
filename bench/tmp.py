@@ -2,6 +2,8 @@ from datasets import load_dataset
 import wandb
 from tqdm import tqdm
 
+
+my_wandb = wandb.init()
 dataset = load_dataset("yahoo_answers_topics")
 label_list = dataset['train'].unique('topic')
 label_list.sort()
@@ -52,7 +54,7 @@ class WandbPredictionProgressCallback(WandbCallback):
         freq (int, optional): Frequency of logging. Defaults to 2.
     """
 
-    def __init__(self, trainer, tokenizer, val_dataset,
+    def __init__(self, trainer, tokenizer, val_dataset, wandb,
                  num_samples=100, freq=2):
         """Initializes the WandbPredictionProgressCallback instance.
 
@@ -69,6 +71,7 @@ class WandbPredictionProgressCallback(WandbCallback):
         super().__init__()
         self.trainer = trainer
         self.model = trainer.model
+        self.wandb = wandb
         self.tokenizer = tokenizer
         self.sample_dataset = val_dataset.select(range(num_samples))
         self.freq = freq
@@ -112,7 +115,7 @@ class WandbPredictionProgressCallback(WandbCallback):
         super().on_evaluate(args, state, control, **kwargs)
 
         records_table = self.samples_tables(self.sample_dataset)
-        self._wandb.log({"sample_predictions":records_table})
+        self.wandb.log({"sample_predictions": records_table})
 
 
 
@@ -159,6 +162,7 @@ progress_callback = WandbPredictionProgressCallback(
     trainer=trainer,
     tokenizer=tokenizer,
     val_dataset=dataset['test'],
+    wandb=my_wandb,
     num_samples=10,
     freq=2,
 )

@@ -1,4 +1,6 @@
 import os
+import time
+
 import torch
 from datasets import load_dataset
 from numpy.lib.function_base import select
@@ -63,16 +65,18 @@ class RemoteMachineFineTuning(FineTuningEngineering):
             tokenizer=self.tokenizer,
             args=self.training_arguments,
             packing=packing,
-            data_collator=DataCollatorForCompletionOnlyLM(instruction_template=self.tokenizer.encode(cfg.PROMPT.INSTRUCTION_TEMPLATE, add_special_tokens=False)[2:],
-                                                          response_template=self.tokenizer.encode(cfg.PROMPT.RESPONSE_TEMPLATE, add_special_tokens=False)[2:],
-                                                          tokenizer=self.tokenizer)
+            data_collator=DataCollatorForCompletionOnlyLM(
+                instruction_template=self.tokenizer.encode(cfg.PROMPT.INSTRUCTION_TEMPLATE, add_special_tokens=False)[
+                                     2:],
+                response_template=self.tokenizer.encode(cfg.PROMPT.RESPONSE_TEMPLATE, add_special_tokens=False)[2:],
+                tokenizer=self.tokenizer)
         )
 
         progress_callback = WandbPredictionProgressCallback(
             trainer=trainer,
             tokenizer=self.tokenizer,
             val_dataset=dataset_val,
-            num_samples=10
+            num_samples=10,
         )
 
         trainer.add_callback(progress_callback)
@@ -136,12 +140,12 @@ def build_fine_tuning_model(cfg):
     )
 
     # collator = DataCollatorForCompletionOnlyLM(instruction_template="<s>[INST]",
+    #
     #                                            response_template=response_template, tokenizer=tokenizer, mlm=False)
-    wandb.init(dir='/data/zixian_z/')
+
     training_arguments = TrainingArguments(
         output_dir=output_dir,
-        report_to='wandb',
-        run_name=cfg.MODEL.NAME,
+        report_to="wandb",
         num_train_epochs=num_train_epochs,
         per_device_train_batch_size=per_device_train_batch_size,
         gradient_accumulation_steps=gradient_accumulation_steps,
@@ -157,8 +161,7 @@ def build_fine_tuning_model(cfg):
         warmup_ratio=warmup_ratio,
         group_by_length=group_by_length,
         lr_scheduler_type=lr_scheduler_type,
-        evaluation_strategy='epoch',
-        deepspeed="/home/zixian_z/PycharmProjects/LLM_Code_Clone_Validation/config/ds/llama2_ds_zero3_config.json"
+        evaluation_strategy='epoch'
     )
 
     fine_tuning_model = __REGISTERED_MODULES__[model_name](model_name, cache_dir, bnb_config, peft_config,
@@ -181,21 +184,22 @@ class WandbPredictionProgressCallback(WandbCallback):
             freq (int, optional): Frequency of logging. Defaults to 2.
         """
         super().__init__()
+        self.wandb = wandb
         self.trainer = trainer
         self.model = trainer.model
         self.tokenizer = tokenizer
         self.sample_dataset = val_dataset.select(range(num_samples))
-
 
     def generate(self, ele):
         def get_text_before_response(text: str) -> str:
             split_text = text.split("###Response:")
             text_before_response = f'{split_text[0]}###Response:'
             return text_before_response
+
         text = get_text_before_response(ele['text'])
 
-        encoded_input = self.tokenizer(ele['prompt_input'], return_tensors="pt",
-                                               padding=True)
+        encoded_input = self.tokenizer(text, return_tensors="pt",
+                                       padding=True)
         output = self.model.generate(
             input_ids=encoded_input['input_ids'],
             attention_mask=encoded_input['attention_mask'],
@@ -205,17 +209,14 @@ class WandbPredictionProgressCallback(WandbCallback):
         output = self.tokenizer.decode(output[0][len(encoded_input[0]):], skip_special_tokens=True)
         return output
 
-
     def samples_tables(self, examples):
         records_table = wandb.Table(columns=["num", "generation"])
         for i, ele in tqdm(enumerate(examples), leave=False):
             generation = self.generate(ele)
             records_table.add_data(i, generation)
-
-    def on_evaluate(self, args, state, control, **kwargs):
-        super().on_evaluate(args, state, control, **kwargs)
+        return records_table
+    def on_step_begin(self, args, state, control, **kwargs):
+        super().on_step_begin(args, state, control, **kwargs)
 
         records_table = self.samples_tables(self.sample_dataset)
         self._wandb.log({"sample_predictions": records_table})
-
-        return records_table

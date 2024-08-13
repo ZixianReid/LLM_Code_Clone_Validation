@@ -1,0 +1,14 @@
+TASK:
+  NAME: 'fine_tuning'
+MODEL:
+  NAME: "deepseek-ai/deepseek-coder-1.3b-instruct"
+
+DATA:
+  NAME: 'Reid996/big_clone_bench'
+
+FINE_TUNING:
+  OUTPUT_DIR: '/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/output_FT'
+  GRADIENT_ACCUMULATION_STEPS: 64
+  PER_DEVICE_TRAIN_BATCH_SIZE: 8
+  PER_DEVICE_EVAL_BATCH_SIZE: 8
+  LORA_R: 4
