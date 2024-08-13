@@ -70,6 +70,7 @@ class BCBDataset(MainDataset):
         dataset = dataset.map(rename_prompt_input,
                               remove_columns=['id1', 'id2', 'label', 'id', 'func1', 'func2',
                                               'prompt_input', 'similarity_score', 'clone_type'])
+
         return dataset
 
     def __sample_dataset(self, dataset):
@@ -79,8 +80,8 @@ class BCBDataset(MainDataset):
 
         dataset_true = dataset[dataset['label'] == 1]
 
-        dataset_false_sampled = dataset_false.sample(frac=0.02, random_state=1)
-        dataset_true_sampled = dataset_true.sample(frac=0.02, random_state=1)
+        dataset_false_sampled = dataset_false.sample(frac=0.002, random_state=1)
+        dataset_true_sampled = dataset_true.sample(frac=0.002, random_state=1)
 
         dataset = pd.concat([dataset_false_sampled, dataset_true_sampled])
 
@@ -93,6 +94,7 @@ class BCBDataset(MainDataset):
 
         self.dataset_train = self.__contact_output_fine_tuning(self.dataset_train)
 
+        self.dataset_val = self.__contact_output_fine_tuning(self.dataset_val)
 
 class OJCloneDataset(MainDataset):
     def __init__(self, name, prompt, cache_dir, cfg):

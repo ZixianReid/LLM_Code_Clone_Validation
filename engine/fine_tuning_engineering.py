@@ -11,6 +11,9 @@ from transformers import (
     pipeline,
     logging,
 )
+from tqdm import tqdm
+import wandb
+from transformers.integrations import WandbCallback
 from peft import LoraConfig, PeftModel
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 
@@ -43,9 +46,17 @@ class RemoteMachineFineTuning(FineTuningEngineering):
         packing = cfg.FINE_TUNING.PACKING
         new_model = cfg.FINE_TUNING.NEW_MODEL_NAME
         dataset_train = dataset.dataset_train
-        trainer = SFTTrainer(
+        dataset_val = dataset.dataset_val
+
+        class SkipEvaluationTrainer(SFTTrainer):
+            def evaluate(self, eval_dataset=None, ignore_keys=None, metric_key_prefix: str = "eval"):
+                # Return an empty dictionary or minimal metrics to mimic an evaluation without computation
+                return {f"{metric_key_prefix}_loss": 0.0}  # Ex
+
+        trainer = SkipEvaluationTrainer(
             model=self.model,
             train_dataset=dataset_train,
+            eval_dataset=dataset_val,
             peft_config=self.peft_config,
             dataset_text_field="text",
             max_seq_length=max_seq_length,
@@ -57,6 +68,14 @@ class RemoteMachineFineTuning(FineTuningEngineering):
                                                           tokenizer=self.tokenizer)
         )
 
+        progress_callback = WandbPredictionProgressCallback(
+            trainer=trainer,
+            tokenizer=self.tokenizer,
+            val_dataset=dataset_val,
+            num_samples=10
+        )
+
+        trainer.add_callback(progress_callback)
         trainer.train()
         trainer.save_model(new_model)
 
@@ -118,7 +137,7 @@ def build_fine_tuning_model(cfg):
 
     # collator = DataCollatorForCompletionOnlyLM(instruction_template="<s>[INST]",
     #                                            response_template=response_template, tokenizer=tokenizer, mlm=False)
-
+    wandb.init(dir='/data/zixian_z/')
     training_arguments = TrainingArguments(
         output_dir=output_dir,
         report_to='wandb',
@@ -138,6 +157,7 @@ def build_fine_tuning_model(cfg):
         warmup_ratio=warmup_ratio,
         group_by_length=group_by_length,
         lr_scheduler_type=lr_scheduler_type,
+        evaluation_strategy='epoch',
         deepspeed="/home/zixian_z/PycharmProjects/LLM_Code_Clone_Validation/config/ds/llama2_ds_zero3_config.json"
     )
 
@@ -145,3 +165,57 @@ def build_fine_tuning_model(cfg):
                                                            training_arguments)
 
     return fine_tuning_model
+
+
+class WandbPredictionProgressCallback(WandbCallback):
+    def __init__(self, trainer, tokenizer, val_dataset,
+                 num_samples=10):
+        """Initializes the WandbPredictionProgressCallback instance.
+
+        Args:
+            trainer (Trainer): The Hugging Face Trainer instance.
+            val_dataset (Dataset): The validation dataset.
+            num_samples (int, optional): Number of samples to select from
+              the validation dataset for generating predictions.
+              Defaults to 100.
+            freq (int, optional): Frequency of logging. Defaults to 2.
+        """
+        super().__init__()
+        self.trainer = trainer
+        self.model = trainer.model
+        self.tokenizer = tokenizer
+        self.sample_dataset = val_dataset.select(range(num_samples))
+
+
+    def generate(self, ele):
+        def get_text_before_response(text: str) -> str:
+            split_text = text.split("###Response:")
+            text_before_response = f'{split_text[0]}###Response:'
+            return text_before_response
+        text = get_text_before_response(ele['text'])
+
+        encoded_input = self.tokenizer(ele['prompt_input'], return_tensors="pt",
+                                               padding=True)
+        output = self.model.generate(
+            input_ids=encoded_input['input_ids'],
+            attention_mask=encoded_input['attention_mask'],
+            pad_token_id=self.tokenizer.pad_token_id,
+            max_new_tokens=15,
+        )
+        output = self.tokenizer.decode(output[0][len(encoded_input[0]):], skip_special_tokens=True)
+        return output
+
+
+    def samples_tables(self, examples):
+        records_table = wandb.Table(columns=["num", "generation"])
+        for i, ele in tqdm(enumerate(examples), leave=False):
+            generation = self.generate(ele)
+            records_table.add_data(i, generation)
+
+    def on_evaluate(self, args, state, control, **kwargs):
+        super().on_evaluate(args, state, control, **kwargs)
+
+        records_table = self.samples_tables(self.sample_dataset)
+        self._wandb.log({"sample_predictions": records_table})
+
+        return records_table
