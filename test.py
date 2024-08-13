@@ -1,29 +1,28 @@
-from datasets import load_dataset
-import pandas as pd
-pd.set_option('display.max_columns', None)  # to display all columns
-pd.set_option('display.expand_frame_repr', False)  # to disable line wrapping
-pd.set_option('display.max_colwidth', None)  # to display full content of each cell
+from tqdm import tqdm
 
-# Load the dataset
-dataset = load_dataset('Reid996/OJClone_code_clone_unbalanced')
-
-# Convert the dataset to pandas
-dataset = dataset['test.txt'].to_pandas()
+for i, ele in tqdm(enumerate(range(11, 15)), leave=False):
+    print(i)
+    print(ele)
 
 
-# Append func1 with itself and place it into the new column 'tmp'
-dataset['tmp'] = dataset.apply(lambda row: f"{row['func1']} {row['func2']}", axis=1)
+text = """
+###Instruction:
+Please analyze the following two code snippets and determine if they are code clones. Respond 
+with only ###RESULT###@@YES@@ for clones or ###RESULT###@@NO@@ if not. Provide no other output.
 
-# Calculate the length of the strings in the 'tmp' column.
-dataset['length_tmp'] = dataset['tmp'].str.len()
+Code snippet 1: $code_1
+Code snippet 2: $code_2
+###Response:
+"""
 
-# Sort the values by the 'length_tmp' column.
-dataset = dataset.sort_values(by='length_tmp')
+split_text = text.split("###Response:", 1)
+text_before_response = f'{split_text[0]}###Response:'
 
-for index, row in dataset.head(10).iterrows():
-    print(row['func1'])
-    print(row['func2'])
-    print(row['label'])
-    print("------------------------------------------")
+print(text_before_response)
+
+def get_text_before_response(text: str) -> str:
+    split_text = text.split("###Response:")
+    text_before_response = f'{split_text[0]}###Response:'
+    return text_before_response
 
 
