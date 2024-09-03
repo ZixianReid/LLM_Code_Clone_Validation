@@ -80,8 +80,8 @@ class BCBDataset(MainDataset):
 
         dataset_true = dataset[dataset['label'] == 1]
 
-        dataset_false_sampled = dataset_false.sample(frac=0.002, random_state=1)
-        dataset_true_sampled = dataset_true.sample(frac=0.002, random_state=1)
+        dataset_false_sampled = dataset_false.sample(frac=0.40, random_state=1)
+        dataset_true_sampled = dataset_true.sample(frac=0.40, random_state=1)
 
         dataset = pd.concat([dataset_false_sampled, dataset_true_sampled])
 

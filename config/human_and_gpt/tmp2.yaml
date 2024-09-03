@@ -1,0 +1,7 @@
+
+
+MODEL:
+  NAME: "meta-llama/Meta-Llama-3-8B-Instruct"
+
+DATA:
+  NAME: 'Reid996/big_clone_bench'

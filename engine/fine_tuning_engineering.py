@@ -106,7 +106,7 @@ def build_fine_tuning_model(cfg):
     gradient_accumulation_steps = cfg.FINE_TUNING.GRADIENT_ACCUMULATION_STEPS
     optim = cfg.FINE_TUNING.OPTIM
     save_steps = cfg.FINE_TUNING.SAVE_STEPS
-    logging_steps = cfg.FINE_TUNING.LOGGING_STEPS
+    logging_steps = cfg.FINE_TUNING.PER_DEVICE_TRAIN_BATCH_SIZE * 2
     learning_rate = cfg.FINE_TUNING.LEARNING_RATE
     weight_decay = cfg.FINE_TUNING.WEIGHT_DECAY
     fp16 = cfg.FINE_TUNING.FP16
@@ -143,6 +143,8 @@ def build_fine_tuning_model(cfg):
     #
     #                                            response_template=response_template, tokenizer=tokenizer, mlm=False)
 
+    wandb.init('/data/zixian_z/wandb/')
+
     training_arguments = TrainingArguments(
         output_dir=output_dir,
         report_to="wandb",
@@ -150,7 +152,6 @@ def build_fine_tuning_model(cfg):
         per_device_train_batch_size=per_device_train_batch_size,
         gradient_accumulation_steps=gradient_accumulation_steps,
         optim=optim,
-        save_steps=save_steps,
         logging_steps=logging_steps,
         learning_rate=learning_rate,
         weight_decay=weight_decay,
@@ -161,7 +162,8 @@ def build_fine_tuning_model(cfg):
         warmup_ratio=warmup_ratio,
         group_by_length=group_by_length,
         lr_scheduler_type=lr_scheduler_type,
-        evaluation_strategy='epoch'
+        evaluation_strategy='epoch',
+        save_strategy= 'epoch'
     )
 
     fine_tuning_model = __REGISTERED_MODULES__[model_name](model_name, cache_dir, bnb_config, peft_config,
@@ -215,8 +217,8 @@ class WandbPredictionProgressCallback(WandbCallback):
             generation = self.generate(ele)
             records_table.add_data(i, generation)
         return records_table
-    def on_step_begin(self, args, state, control, **kwargs):
-        super().on_step_begin(args, state, control, **kwargs)
+    def on_evaluate(self, args, state, control, **kwargs):
+        super().on_evaluate(args, state, control, **kwargs)
 
         records_table = self.samples_tables(self.sample_dataset)
         self._wandb.log({"sample_predictions": records_table})

@@ -1,28 +1,10 @@
-from tqdm import tqdm
-
-for i, ele in tqdm(enumerate(range(11, 15)), leave=False):
-    print(i)
-    print(ele)
+import pandas as pd
 
 
-text = """
-###Instruction:
-Please analyze the following two code snippets and determine if they are code clones. Respond 
-with only ###RESULT###@@YES@@ for clones or ###RESULT###@@NO@@ if not. Provide no other output.
+xx = pd.read_csv('/home/zixian_z/PycharmProjects/LLM_Code_Clone_Validation/output/Reid996/big_clone_bench/zero_shot/output.csv')
 
-Code snippet 1: $code_1
-Code snippet 2: $code_2
-###Response:
-"""
+zz = xx['output']
 
-split_text = text.split("###Response:", 1)
-text_before_response = f'{split_text[0]}###Response:'
-
-print(text_before_response)
-
-def get_text_before_response(text: str) -> str:
-    split_text = text.split("###Response:")
-    text_before_response = f'{split_text[0]}###Response:'
-    return text_before_response
-
-
+yy = xx['label']
+print(zz.head(10))
+print(yy.head(10))
