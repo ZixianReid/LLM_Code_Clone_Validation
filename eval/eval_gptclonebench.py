@@ -6,7 +6,7 @@ pd.set_option('display.max_columns', None)  # to display all columns
 pd.set_option('display.expand_frame_repr', False)  # to disable line wrapping
 pd.set_option('display.max_colwidth', None)  # to display full content of each cell
 path = (
-    "/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/output/Reid996/big_clone_bench/zero_shot/output.csv")
+    "/home/zixian/PycharmProjects/LLM_Code_Clone_Validation/output/meta-llama/Meta-Llama-3-8B-Instruct/Reid996/GPTCloneBench/zero_shot/output.csv")
 
 df = pd.read_csv(path)
 
@@ -29,7 +29,7 @@ def preprocess(df):
 
 df = preprocess(df)
 
-
+#
 def recall_precision_f1(df):
     precision = precision_score(df['label'], df['output_label'])
     recall = recall_score(df['label'], df['output_label'])
@@ -60,31 +60,40 @@ recall_precision_f1(df)
 # from util import line_based_similarity
 #
 # df['similarity_score'] = df.apply(line_based_similarity, axis=1)
-
-# df = df[(df['clone_type'] != 'T1') & (df['clone_type'] != 'T2') & (df['similarity_score'] <= 0.5)]
+#
+# df = df[(df['clone_type'] != 'T1-2')]
 #
 # import seaborn as sns
 # from matplotlib import pyplot as plt
 #
 #
-# def hist_chart(df):
+# def hist_chart_proportion(df):
 #     # Set the style of Seaborn for prettier plots
 #     sns.set_theme(style="whitegrid")
 #
 #     # Create figure and axis variables for 1x1 subplot
 #     fig, axs = plt.subplots(figsize=(10, 10))
 #
-#     # Using axs directly without subscript as it's not a list but a single axes object
-#     sns.histplot(data=df, x='similarity_score', bins=45, edgecolor='black',
-#                  hue=df['output_label'].map({0: 'False Positive', 1: 'True Positive'}),
-#                  palette=['green', 'red'], multiple='stack', ax=axs)
+#     # Bin the data frame by similarity score with 20 bins
+#     df['binned'] = pd.cut(df['similarity_score'], bins=20)
 #
-#     axs.set_title('GPT-3 Distributions')
-#     axs.set_xlabel('Similarity Score')
-#     axs.set_ylabel('Frequency')
-#     axs.legend(['False Positive', 'True Positive'])
+#     # Calculate the proportion of false positives within each bin
+#     proportion_df = df.groupby('binned')['output_label'].value_counts(normalize=True).unstack().fillna(0)
+#     proportion_df.columns = ['False Positive', 'True Positive']
+#
+#     # Reset index to make 'binned' a column
+#     proportion_df.reset_index(inplace=True)
+#
+#     # Plotting the proportion of false positives for each bin
+#     sns.barplot(data=proportion_df, x='binned', y='False Positive', color='red', ax=axs)
+#
+#     axs.set_title('Proportion of False Positives per Bin')
+#     axs.set_xlabel('Similarity Score Bins')
+#     axs.set_ylabel('Proportion of False Positives')
+#     axs.set_xticklabels(axs.get_xticklabels(), rotation=45)
 #     axs.grid(False)
 #
 #     plt.tight_layout()
 #     plt.show()
-# hist_chart(df)
+#
+# hist_chart_proportion(df)

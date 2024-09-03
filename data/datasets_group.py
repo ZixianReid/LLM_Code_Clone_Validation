@@ -186,6 +186,9 @@ def build_dataset(cfg, prompt):
     elif cfg.TASK.NAME == "fine_tuning":
         dataset.build()
         dataset = filter_dataset_seq_length(dataset, cfg.FINE_TUNING.MAX_SEQ_LENGTH, cfg.MODEL.NAME)
+    elif cfg.TASK.NAME == "similarity_score":
+        dataset.build_prompt()
+        dataset = filter_dataset(dataset, cfg.OUTPUT.PROCESSED_PATH)
     else:
         print("Unknown task")
 

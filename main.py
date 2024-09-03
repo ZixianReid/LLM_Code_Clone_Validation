@@ -23,6 +23,10 @@ def run(cfg):
     elif cfg.TASK.NAME == 'fine_tuning':
         model = build_fine_tuning_model(cfg)
         model.train(cfg, dataset)
+    elif cfg.TASK.NAME == 'similarity_score':
+        model = build_prompt_engineering(cfg)
+        model.run(cfg, dataset)
+
     else:
         print('Unknown task')
 
